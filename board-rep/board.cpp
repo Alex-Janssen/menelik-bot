@@ -6,14 +6,13 @@
 #include <vector>
 
 class Board{
-    Square[8][8] the_board;
 
     Board(){
         this.the_board = Square[8][8];
         this.turn = colors.WHITE;
-    };
+    }
 
-    Board(Square[8][8] squares, turns turn){
+    Board(Square[8][8] squares, colors turn){
         this.the_board = squares;
         this.turn = turn;
     };
@@ -36,7 +35,7 @@ class Board{
     }
 
     Board next_from_move(Move move){
-        turns next_turn;
+        colors next_turn;
         Square[8][8] next_board;
 
         switch (this.turn){
@@ -63,10 +62,10 @@ class Board{
         if(end_square->piece == pieces.EP_GHOST && end_square->color == next_turn){
             int y;
             if(next_turn == colors.WHITE){
-                y = end_y+1;
+                y = end_y-1;
             }
             if(next_turn == colors.BLACK){
-                y = end_y-1;
+                y = end_y+1;
             }
             next_board[move.end_x][y].color = colors.NONE;
             next_board[move.end_x][y].piece = pieces.NONE;
