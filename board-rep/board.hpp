@@ -8,26 +8,29 @@
 #ifndef MENELIK_BOARD_H
 #define MENELIK_BOARD_H
 
-struct Move {
-    int start_x;
-    int start_y;
-    int end_x;
-    int end_y;
-};
 
 enum class colors {BLACK, WHITE, NONE}; //Defines colors which are linked to a square
-enum class pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, EP_GHOST, NONE}; //Defines piece on square.
+enum class pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, NONE}; //Defines piece on square.
 
 struct Square {
     colors color = colors::NONE;
     pieces piece = pieces::NONE;
 };
 
+struct Move {
+    int start_x;
+    int start_y;
+    int end_x;
+    int end_y;
+    pieces promote_target = pieces::NONE;
+};
 
 class Board {
 
     public:
 
+        int ep_x = -1;
+        int ep_y = -1;
         Square** the_board;
         int_fast8_t castle_status;
         colors turn = colors::NONE;
@@ -45,6 +48,9 @@ class Board {
 
         std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type)
         Square** board_copy();
+        bool any_piece_here(int pos_x, int pos_y);
+        bool ally_piece_here(int pos_x, int pos_y, colors team);
+        bool enemy_piece_here(int pos_x, int pos_y, colors team);
 
 };
 
