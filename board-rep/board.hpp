@@ -13,7 +13,6 @@ struct Move {
     int start_y;
     int end_x;
     int end_y;
-    bool castle = false;
 };
 
 enum class colors {BLACK, WHITE, NONE}; //Defines colors which are linked to a square
@@ -27,12 +26,12 @@ struct Square {
 
 class Board {
 
-
     public:
 
         Square** the_board;
         int_fast8_t castle_status;
         colors turn = colors::NONE;
+        color victory = colors::NONE;
 
         Board();
         Board(Square** squares, colors turn, unsigned int castle_status);
@@ -44,6 +43,7 @@ class Board {
 
     private:
 
+        std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type)
         Square** board_copy();
 
 };

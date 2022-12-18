@@ -10,6 +10,8 @@ int main() {
 	cout << "Test Constructor: " << endl << endl;
 	Board_Test::print_board_state(test_board);
 
+	cout << "Test Loading from fen: " << endl << endl;
+
 	return 0;
 }
 
