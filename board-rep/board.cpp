@@ -81,8 +81,8 @@ Board* Board::next_from_move(Move move){
     start_square->color = colors::NONE;
     start_square->piece = pieces::NONE;
 
-    //if we are taking an enemy en passant ghost with our pawn
-    if(end_square->piece == pieces::EP_GHOST && end_square->color == next_turn && start_piece == pieces::PAWN){
+    //if we are taking en passant with our pawn
+    if((move.end_x == ep_x && move.end_y == ep_y) && start_piece == pieces::PAWN){
         int y;
         //change y to get the associated pawn's location
         if(next_turn == colors::WHITE){
@@ -137,7 +137,7 @@ Board* Board::next_from_move(Move move){
     
     //rook move check for castling rights update
     if(start_piece == pieces::ROOK ){
-        //woooooo bitwise operand time baby
+        //woooooo bitwise operand time
         bool K = move.start_x==7;
         bool W = move.start_y==0;
 
@@ -151,6 +151,23 @@ Board* Board::next_from_move(Move move){
     //place the moving piece at its destination, possibly overwriting a piece that is there
     end_square->color = start_color;
     end_square->piece = start_piece;
+
+    //if the move is a pawn promotion, replace the end_square piece with the promoted type
+    if(move.promote_target != pieces::NONE){
+        end_square->piece = move.promote_target;
+    }
+    
+    //if the move is a pawn first move double, add the en passant possibility
+    if(start_piece == pieces::PAWN){
+        if(move.start_y == 1 && move.end_y == 3){
+            next_board.ep_x = move.end_x;
+            next_board.ep_y = 2;
+        }
+        if(move.start_y == 6 && move.end_y == 4){
+            next_board.ep_x = move.end_x;
+            next_board.ep_y = 5;
+        }
+    }
 
     //return the updated board
     return next_board;
@@ -190,22 +207,98 @@ Square** Board::board_copy(){
 
 std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn){
     std::vector<Move> out = std::vector<Move>;
-    switch (piece_type){
-        case pieces::NONE:
-            break;
-        case pieces::EP_GHOST:
-            break;
-        case pieces::PAWN:
-            break;
-        case pieces::ROOK:
-            break;
-        case pieces::KNIGHT:
-            break;
-        case pieces::BISHOP:
-            break;
-        case pieces::QUEEN:
-            break;
-        case pieces::KING:
-            break;
+    if(the_board[pos_x][pos_y].color == turn){
+        switch (piece_type){
+            case pieces::NONE:
+                break;
+
+            //when I first started writing this, I did not think that pawns would suck the most to write.
+            //considering the double-move, diagional for taking and forward for movement, en passant and promotion rules though it makes sense
+            case pieces::PAWN:
+                int dest_x = pos_x;
+                int dest_y;
+                if(turn == colors::WHITE){
+                    dest_y = pos_y+1;
+                    //if the pawn has not moved from the start, add a double move possiblity if unobstructed
+                    if(pos_y == 1){
+                        if(!any_piece_here(dest_x, dest_y+1) && !any_piece_here(dest_x, dest_y)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y+1};
+                            out.push_back(move);
+                        }
+                    }
+                }
+                //like white, but y-1 for the basic move and also for the double move
+                if(turn == colors::BLACK){
+                    dest_y = pos_y-1;
+                    //if the pawn has not moved from the start, add a double move possiblity if unobstructed
+                    if(pos_y == 1){
+                        if(!any_piece_here(dest_x, dest_y-1) && !any_piece_here(dest_x, dest_y)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y-1};
+                            out.push_back(move);
+                        }
+                    }
+                }
+                //look in the 3 forward directions for movement
+                for(dest_x = pos_x - 1; dest_x <= pos_x + 1; dest_x++){
+                    //bounds check
+                    if(dest_x < 0 || dest_x > 7){
+                        continue
+                    }
+                    //only move if directly forwards (no change in x) and no piece there, or if diagonally (unequal x) and an enemy piece is there or en passant is there
+                    if((dest_x == pos_x && !any_piece_here(dest_x, dest_y)) || (pos_x != dest_x && (enemy_piece_here(dest_x, dest_y, turn) || (ep_x == dest_x && ep_y == dest_y)))){
+                        //if the move requires a promotion, add all possible promotions to the moves table
+                        if(dest_y == 7){
+                            Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            move.promote_target = pieces::QUEEN;
+                            out.push_back(move);
+                            move.promote_target = pieces::BISHOP;
+                            out.push_back(move);
+                            move.promote_target = pieces::KNIGHT;
+                            out.push_back(move);
+                            move.promote_target = pieces::ROOK;
+                            out.push_back(move);
+                        }
+                        //no promotion, simple move
+                        else{
+                            Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
+                    }
+                }
+                break;
+
+            case pieces::ROOK:
+                break;
+
+            case pieces::KNIGHT:
+                break;
+
+            case pieces::BISHOP:
+                break;
+
+            case pieces::QUEEN:
+                break;
+
+            case pieces::KING:
+                break;
+        }
     }
+    return out;
+}
+
+bool Board::any_piece_here(int x,int y){
+    return the_board[x][y].piece != pieces::NONE;
+}
+bool Board::ally_piece_here(int x, int y, colors team){
+    return the_board[x][y].piece != pieces::NONE && the_board[x][y].color == team;
+}
+bool Board::enemy_piece_here(int x, int y, colors team){
+    colors enemy_team;
+    if(team==colors::WHITE){
+        enemy_team = colors::BLACK;
+    }
+    if(team==colors::BLACK){
+        enemy_team = colors::WHITE;
+    }
+    return the_board[x][y].piece != pieces::NONE && the_board[x][y].color == enemy_team;
 }
