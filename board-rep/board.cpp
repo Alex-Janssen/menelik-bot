@@ -5,9 +5,9 @@
 #include "Board.hpp"
 #include <vector>
 
-Board::Board(void){
+Board::Board(){
     //initalize empty board
-    this->the_board = new Square * [8] {new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8]};
+    this->squares = new Square * [8] {new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8]};
     //initialize to nobody's turn
     this->turn = colors::NONE;
     //castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
@@ -15,9 +15,15 @@ Board::Board(void){
     this->castle_status = 0b1111;
 }
 
+Board::Board(Square** squares){
+    //change board pointer to point to incoming board pointer
+    this->squares = squares;
+};
+
+
 Board::Board(Square** squares, colors turn, unsigned int castle_status){
     //change board pointer to point to incoming board pointer
-    this->the_board = squares;
+    this->squares = squares;
 
     //also load turn and castle status (enum class and int types)
     this->turn = turn;
@@ -25,11 +31,11 @@ Board::Board(Square** squares, colors turn, unsigned int castle_status){
 };
 
 Board::~Board() {
-    delete[][] the_board;
+    delete[] squares;
 }
 
 void Board::load_board(Board other){
-    this->the_board = other.the_board;
+    this->squares = other.squares;
     this->turn = other.turn;
 }
 
@@ -43,7 +49,9 @@ void Board::load_board(std::string& fen_string){
 
 Board* Board::next_from_move(Move move){
     colors next_turn;
-    Square** next_board;
+    Square** next_squares;
+    int_fast8_t next_castle_status;
+    Board* next_board = new Board(next_squares, next_turn, next_castle_status);
 
     //set next_turn to the color who has their turn next
     switch (this->turn){
@@ -59,18 +67,17 @@ Board* Board::next_from_move(Move move){
     }
 
     //make a copy of the board to update with the move (and retrun refernce to)
-    next_board = board_copy();
-    int_fast8_t next_castle_status;
+    next_squares = board_copy();
     next_castle_status = this->castle_status;
 
     //get references to the start and end squares
-    Square* end_square = &next_board[move.end_x][move.end_y];
-    Square* start_square = &next_board[move.start_x][move.start_y];
+    Square* end_square = &next_squares[move.end_x][move.end_y];
+    Square* start_square = &next_squares[move.start_x][move.start_y];
 
     //if the move is an enemy king capture, set victory
     //(this will count stalemates and checkmates both as a win, TODO?)
     if(end_square->piece == pieces::KING){
-        next_board.victory = this->turn
+        next_board->victory = this->turn;
     }
 
     //store values of the piece information of the starting square
@@ -92,8 +99,8 @@ Board* Board::next_from_move(Move move){
             y = move.end_y+1;
         }
         //get rid of the associated pawn
-        next_board[move.end_x][y].color = colors::NONE;
-        next_board[move.end_x][y].piece = pieces::NONE;
+        next_squares[move.end_x][y].color = colors::NONE;
+        next_squares[move.end_x][y].piece = pieces::NONE;
     }
 
     //king move check for castling
@@ -101,10 +108,10 @@ Board* Board::next_from_move(Move move){
         
         //update castling rights:
         if(this->turn == colors::WHITE){
-            next_board.castle_status &= 0b0011;
+            next_board->castle_status &= 0b0011;
         }
         if(this->turn == colors::BLACK){
-            next_board.castle_status &= 0b1100;
+            next_board->castle_status &= 0b1100;
         }
         
     //if we are castling (king move from e (x=4) to c (x=2) or g (x=6))
@@ -113,23 +120,23 @@ Board* Board::next_from_move(Move move){
         //queenside castle
             if(move.end_x == 2){
                 //remove rook from queen's side
-                next_board[0][start_y].color = colors::NONE;
-                next_board[0][start_y].piece = pieces::NONE;
+                next_squares[0][move.start_y].color = colors::NONE;
+                next_squares[0][move.start_y].piece = pieces::NONE;
 
                 //place rook at F (x = 5), with the color of the person who castled
-                next_board[5][start_y].color = this->turn;
-                next_board[5][start_y].piece = pieces::ROOK;
+                next_squares[5][move.start_y].color = this->turn;
+                next_squares[5][move.start_y].piece = pieces::ROOK;
             }
 
             //kingside castle
             if(move.end_x == 6){
                 //remove rook from king's side
-                next_board[7][start_y].color = colors::NONE;
-                next_board[7][start_y].piece = pieces::NONE;
+                next_squares[7][move.start_y].color = colors::NONE;
+                next_squares[7][move.start_y].piece = pieces::NONE;
 
                 //place rook at D (x = 3), with the color of the person who castled
-                next_board[3][start_y].color = this->turn;
-                next_board[3][start_y].piece = pieces::ROOK;
+                next_squares[3][move.start_y].color = this->turn;
+                next_squares[3][move.start_y].piece = pieces::ROOK;
 
             }
         }
@@ -144,7 +151,7 @@ Board* Board::next_from_move(Move move){
         //castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
 
         int_fast8_t result = 0b1000 * (!K && W) + 0b0100 * (K && W) + 0b0010 * (!K && !W) + 0b0001 * (K && !W);
-        next_board &= result;
+        next_castle_status &= result;
     }
     
 
@@ -160,12 +167,12 @@ Board* Board::next_from_move(Move move){
     //if the move is a pawn first move double, add the en passant possibility
     if(start_piece == pieces::PAWN){
         if(move.start_y == 1 && move.end_y == 3){
-            next_board.ep_x = move.end_x;
-            next_board.ep_y = 2;
+            next_board->ep_x = move.end_x;
+            next_board->ep_y = 2;
         }
         if(move.start_y == 6 && move.end_y == 4){
-            next_board.ep_x = move.end_x;
-            next_board.ep_y = 5;
+            next_board->ep_x = move.end_x;
+            next_board->ep_y = 5;
         }
     }
 
@@ -175,14 +182,14 @@ Board* Board::next_from_move(Move move){
 
 std::vector<Move> Board::get_legal_moves(){
     //create output vector
-    std::vector<Move> legal_moves = std::vector<Move>;
+    std::vector<Move> legal_moves = std::vector<Move>();
 
     //iterate over all pieces
     for(int pos_x = 0; pos_x < 8; pos_x++){
         for (int pos_y = 0; pos_y < 8; pos_y++){
             //get the type of the piece being observed
             pieces this_piece_type;
-            this_piece_type = this->the_board[pos_x][pos_y].piece;
+            this_piece_type = this->squares[pos_x][pos_y].piece;
             //get the moves this piece can make
             std::vector<Move> moves_this_piece;
             moves_this_piece = get_moves_from_position(pos_x, pos_y, this_piece_type, this->turn);\
@@ -199,22 +206,22 @@ Square** Board::board_copy(){
     for(int x = 0; x < 8; x++){
         for(int y = 0; y < 8; y++){
             //set by value the copied board
-            copy[x][y] = the_board[x][y];
+            copy[x][y] = squares[x][y];
         }
     }
     return copy;
 }
 
 std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn){
-    std::vector<Move> out = std::vector<Move>;
-    if(the_board[pos_x][pos_y].color == turn){
+    std::vector<Move> out = std::vector<Move>();
+    if(squares[pos_x][pos_y].color == turn){
         switch (piece_type){
             case pieces::NONE:
                 break;
 
             //when I first started writing this, I did not think that pawns would suck the most to write.
             //considering the double-move, diagional for taking and forward for movement, en passant and promotion rules though it makes sense
-            case pieces::PAWN:
+            case pieces::PAWN:{
                 int dest_x = pos_x;
                 int dest_y;
                 if(turn == colors::WHITE){
@@ -222,7 +229,7 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                     //if the pawn has not moved from the start, add a double move possiblity if unobstructed
                     if(pos_y == 1){
                         if(!any_piece_here(dest_x, dest_y+1) && !any_piece_here(dest_x, dest_y)){
-                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y+1};
+                            Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y+1};
                             out.push_back(move);
                         }
                     }
@@ -233,7 +240,7 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                     //if the pawn has not moved from the start, add a double move possiblity if unobstructed
                     if(pos_y == 1){
                         if(!any_piece_here(dest_x, dest_y-1) && !any_piece_here(dest_x, dest_y)){
-                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y-1};
+                            Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y-1};
                             out.push_back(move);
                         }
                     }
@@ -242,7 +249,7 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                 for(dest_x = pos_x - 1; dest_x <= pos_x + 1; dest_x++){
                     //bounds check
                     if(dest_x < 0 || dest_x > 7){
-                        continue
+                        continue;
                     }
                     //only move if directly forwards (no change in x) and no piece there, or if diagonally (unequal x) and an enemy piece is there or en passant is there
                     if((dest_x == pos_x && !any_piece_here(dest_x, dest_y)) || (pos_x != dest_x && (enemy_piece_here(dest_x, dest_y, turn) || (ep_x == dest_x && ep_y == dest_y)))){
@@ -265,32 +272,32 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                         }
                     }
                 }
-                break;
+                break;}
 
-            case pieces::ROOK:
-                break;
+            case pieces::ROOK:{
+                break;}
 
-            case pieces::KNIGHT:
-                break;
+            case pieces::KNIGHT:{
+                break;}
 
-            case pieces::BISHOP:
-                break;
+            case pieces::BISHOP:{
+                break;}
 
-            case pieces::QUEEN:
-                break;
+            case pieces::QUEEN:{
+                break;}
 
-            case pieces::KING:
-                break;
+            case pieces::KING:{
+                break;}
         }
     }
     return out;
 }
 
 bool Board::any_piece_here(int x,int y){
-    return the_board[x][y].piece != pieces::NONE;
+    return squares[x][y].piece != pieces::NONE;
 }
 bool Board::ally_piece_here(int x, int y, colors team){
-    return the_board[x][y].piece != pieces::NONE && the_board[x][y].color == team;
+    return squares[x][y].piece != pieces::NONE && squares[x][y].color == team;
 }
 bool Board::enemy_piece_here(int x, int y, colors team){
     colors enemy_team;
@@ -300,5 +307,5 @@ bool Board::enemy_piece_here(int x, int y, colors team){
     if(team==colors::BLACK){
         enemy_team = colors::WHITE;
     }
-    return the_board[x][y].piece != pieces::NONE && the_board[x][y].color == enemy_team;
+    return squares[x][y].piece != pieces::NONE && squares[x][y].color == enemy_team;
 }

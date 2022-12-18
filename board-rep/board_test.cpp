@@ -19,7 +19,7 @@ void Board_Test::print_board_state(Board* board){
 	cout << "Board Colors: " << endl;
 	for(int y= 0; y < 8; y++){
 		for(int x = 0; x < 8; x++){
-			cout << color_enum_to_name(board->the_board[x][y].color) << '\t';
+			cout << color_enum_to_name(board->squares[x][y].color) << '\t';
 		}
 		cout << endl;
 	}
@@ -27,7 +27,7 @@ void Board_Test::print_board_state(Board* board){
 	cout << "Board Pieces: " << endl;
 	for(int y= 0; y < 8; y++){
 		for(int x = 0; x < 8; x++){
-			cout << piece_enum_to_name(board->the_board[x][y].piece) << '\t';
+			cout << piece_enum_to_name(board->squares[x][y].piece) << '\t';
 		}
 		cout << endl;
 	}

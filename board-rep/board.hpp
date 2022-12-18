@@ -28,29 +28,29 @@ struct Move {
 class Board {
 
     public:
-
-        int ep_x = -1;
-        int ep_y = -1;
-        Square** the_board;
+        Square** squares;
         int_fast8_t castle_status;
         colors turn = colors::NONE;
-        color victory = colors::NONE;
+        colors victory = colors::NONE;
 
         Board();
+        Board(Square** squares);
         Board(Square** squares, colors turn, unsigned int castle_status);
         ~Board();
-        void load_board(Board);
-        void load_board(std::string&);
+        void load_board(Board other);
+        void load_board(std::string& fen_string);
         std::vector<Move> get_legal_moves();
-        Board* next_from_move(Move);
+        Board* next_from_move(Move move);
 
     private:
 
-        std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type)
+        std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn);
         Square** board_copy();
         bool any_piece_here(int pos_x, int pos_y);
         bool ally_piece_here(int pos_x, int pos_y, colors team);
         bool enemy_piece_here(int pos_x, int pos_y, colors team);
+        int ep_x = -1;
+        int ep_y = -1;
 
 };
 
