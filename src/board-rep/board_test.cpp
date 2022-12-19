@@ -1,5 +1,5 @@
 #include "Board.cpp"
-#include "board_test.hpp"
+#include "Board_test.hpp"
 #include <iostream>
 
 using std::cout;
