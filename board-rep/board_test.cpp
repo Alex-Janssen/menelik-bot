@@ -10,7 +10,13 @@ int main() {
 	cout << "Test Constructor: " << endl << endl;
 	Board_Test::print_board_state(test_board);
 
+	std::string fen_string = "2b1kb2/p2pp1pp/1r1q1r2/p1n4n/PpPQ2p1/1N2P3/P2PKPPP/R1B2BNR w HA - 0 1";
+
 	cout << "Test Loading from FEN: " << endl << endl;
+	cout << "Input FEN string = " << fen_string << endl;
+
+	test_board->load_board(fen_string);
+	Board_Test::print_board_state(test_board);
 
 	return 0;
 }
