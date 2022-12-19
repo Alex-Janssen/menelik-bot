@@ -7,7 +7,7 @@
 using std::ifstream;
 
 
-static std::map<char, int> read_piece_vals(){
+std::map<char, int> Load_Params::read_piece_vals(){
     std::fstream p_vals;
     std::map<char, int> to_return;
     p_vals.open("./params/piece_vals.txt",std::ios::in); //read file
