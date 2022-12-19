@@ -45,7 +45,7 @@ void Board::load_board(std::string& fen_string){
     int row = 0;
     int fen_scan = 0;
     while (column+row*8 < 64 && fen_scan < fen_string.length()){
-        if (fen_string.at(fen_scan) == '\\'){
+        if (fen_string.at(fen_scan) == '/'){
             row ++;
             column = 0;
         }
