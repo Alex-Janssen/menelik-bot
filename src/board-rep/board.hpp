@@ -106,5 +106,45 @@ std::string piece_enum_to_name(pieces piece){
     }
 }
 
+char piece_to_char(pieces piece, colors color){
+    switch (color)
+    {
+    case colors::BLACK:
+        switch(piece){
+            case pieces::KING:
+                return 'k';
+            case pieces::QUEEN:
+                return 'q';
+            case pieces::ROOK:
+                return 'r';
+            case pieces::KNIGHT:
+                return 'n';
+            case pieces::BISHOP:
+                return 'b';
+            case pieces::PAWN:
+                return 'p';
+        }
+        break;
+    case colors::WHITE:
+        switch(piece){
+            case pieces::KING:
+                return 'K';
+            case pieces::QUEEN:
+                return 'Q';
+            case pieces::ROOK:
+                return 'R';
+            case pieces::KNIGHT:
+                return 'N';
+            case pieces::BISHOP:
+                return 'B';
+            case pieces::PAWN:
+                return 'P';
+        }
+        break;
+    case colors::NONE:
+        return '_';
+    }
+}
+
 
 #endif //MENELIK_BOARD_H
