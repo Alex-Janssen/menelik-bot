@@ -29,6 +29,8 @@ class Board {
 
     public:
 
+        colors turn = colors::NONE;
+        colors victory = colors::NONE;
         Board();
         Board(Square** squares);
         Board(Square** squares, colors turn, unsigned int castle_status);
@@ -43,8 +45,6 @@ class Board {
 
         /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
         int_fast8_t castle_status;
-        colors turn = colors::NONE;
-        colors victory = colors::NONE;
         Square** squares;
         int turns_until_draw = 50;
         std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn);

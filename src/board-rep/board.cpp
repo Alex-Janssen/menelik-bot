@@ -6,6 +6,7 @@
 #include <vector>
 #include <ctype.h>
 #include <string.h>
+#include <iostream>
 
 Board::Board(){
     //initalize empty board
@@ -95,11 +96,16 @@ void Board::load_board_pieces(std::string& fen_string){
         fen_scan++;  //always go through a fen string          
     }
 }
+
+/// @brief copys itself and moves a move
+/// @pre Must be someone's turn.
+/// @param move the move to be made
+/// @return a reference to a board with the next move in it
 Board* Board::next_from_move(Move move){
     colors next_turn;
     Square** next_squares;
     int_fast8_t next_castle_status;
-    Board* next_board = new Board(next_squares, next_turn, next_castle_status);
+    colors next_victory = colors::NONE;
 
     //set next_turn to the color who has their turn next
     switch (this->turn){
@@ -125,7 +131,7 @@ Board* Board::next_from_move(Move move){
     //if the move is an enemy king capture, set victory
     //(this will count stalemates and checkmates both as a win, TODO?)
     if(end_square->piece == pieces::KING){
-        next_board->victory = this->turn;
+        next_victory = this->turn;
     }
 
     //store values of the piece information of the starting square
@@ -156,10 +162,10 @@ Board* Board::next_from_move(Move move){
         
         //update castling rights:
         if(this->turn == colors::WHITE){
-            next_board->castle_status &= 0b0011;
+            next_castle_status &= 0b0011;
         }
         if(this->turn == colors::BLACK){
-            next_board->castle_status &= 0b1100;
+            next_castle_status &= 0b1100;
         }
         
     //if we are castling (king move from e (x=4) to c (x=2) or g (x=6))
@@ -211,6 +217,10 @@ Board* Board::next_from_move(Move move){
     if(move.promote_target != pieces::NONE){
         end_square->piece = move.promote_target;
     }
+
+    Board* next_board = new Board(next_squares, next_turn, next_castle_status);
+
+    next_board->victory = next_victory;
     
     //if the move is a pawn first move double, add the en passant possibility
     if(start_piece == pieces::PAWN){

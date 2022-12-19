@@ -18,6 +18,17 @@ int main() {
 	test_board->load_board(fen_string);
 	Board_Test::print_board_state(test_board);
 
+	cout << "Test next from a legal move: " << endl << endl;
+	test_board->turn = colors::WHITE;
+	Move move = {.start_x = 3, .start_y = 3, .end_x = 4, .end_y = 4};
+	Board* test_next_board = test_board->next_from_move(move);
+
+	cout << "Result board: ";
+	Board_Test::print_board_state(test_next_board);
+
+	cout << "Original board: ";
+	Board_Test::print_board_state(test_board);
+
 	return 0;
 }
 
@@ -25,7 +36,7 @@ void Board_Test::print_board_state(Board* board){
 	cout << "Board Colors: " << endl;
 	for(int y= 0; y < 8; y++){
 		for(int x = 0; x < 8; x++){
-			cout << color_enum_to_name(board->squares[x][y].color) << '\t';
+			cout << color_enum_to_name(board->at(x,y).color) << '\t';
 		}
 		cout << endl;
 	}
@@ -33,7 +44,7 @@ void Board_Test::print_board_state(Board* board){
 	cout << "Board Pieces: " << endl;
 	for(int y= 0; y < 8; y++){
 		for(int x = 0; x < 8; x++){
-			cout << piece_enum_to_name(board->squares[x][y].piece) << '\t';
+			cout << piece_enum_to_name(board->at(x,y).piece) << '\t';
 		}
 		cout << endl;
 	}
