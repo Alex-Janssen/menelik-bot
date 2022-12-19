@@ -58,7 +58,7 @@ void Board::load_board_pieces(std::string& fen_string){
             column += fen_string.at(fen_scan)-char('0');//Casts to int by subtracting 0 character value.
         }
         else{
-            Square* to_set = squares[column][7-row];//Adjusted because mirror set-up, thanks Theo...
+            Square* to_set = &squares[column][7-row];//Adjusted because mirror set-up, thanks Theo...
             if(islower(fen_string.at(fen_scan))){//Sets color
                 to_set->color = colors::BLACK;
             }
