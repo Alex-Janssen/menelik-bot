@@ -5,6 +5,7 @@
 #include "Board.hpp"
 #include <vector>
 #include <ctype.h>
+#include <string.h>
 
 Board::Board(){
     //initalize empty board
@@ -13,6 +14,7 @@ Board::Board(){
     this->turn = colors::NONE;
     //initialize to all true
     this->castle_status = 0b1111;
+    this->turns_until_draw = 50;
 }
 
 Board::Board(Square** squares){
@@ -40,7 +42,10 @@ void Board::load_board(Board other){
 }
 
 void Board::load_board(std::string& fen_string){
-    //TODO
+    load_board_pieces(fen_string.substr(0, fen_string.find(" ")));
+}
+
+void Board::load_board_pieces(std::string& fen_string){
     int column = 0;
     int row = 0;
     int fen_scan = 0;
@@ -53,31 +58,31 @@ void Board::load_board(std::string& fen_string){
             column += fen_string.at(fen_scan)-char('0');//Casts to int by subtracting 0 character value.
         }
         else{
-            Square* to_set = &squares[column][7-row];//Adjusted because mirror set-up, thanks Theo...
+            auto to_set = squares[column][7-row];//Adjusted because mirror set-up, thanks Theo...
             if(islower(fen_string.at(fen_scan))){//Sets color
-                to_set->color = colors::BLACK;
+                to_set.color = colors::BLACK;
             }
             else{
-                to_set->color = colors::WHITE;
+                to_set.color = colors::WHITE;
             }
             switch (tolower(fen_string.at(fen_scan))){//TO REFACTOR AS SEPERATE FUNCTION, GETS LOWER CASE VALUE
                 case 'p':
-                    to_set->piece = pieces::PAWN;
+                    to_set.piece = pieces::PAWN;
                     break;
                 case 'r':
-                    to_set->piece = pieces::ROOK;
+                    to_set.piece = pieces::ROOK;
                     break;     
                 case 'k':
-                    to_set->piece = pieces::KING;
+                    to_set.piece = pieces::KING;
                     break;      
                 case 'n':
-                    to_set->piece = pieces::KNIGHT;
+                    to_set.piece = pieces::KNIGHT;
                     break;                 
                 case 'q':
-                    to_set->piece = pieces::QUEEN;
+                    to_set.piece = pieces::QUEEN;
                     break;  
                 case 'b':
-                    to_set->piece = pieces::BISHOP;
+                    to_set.piece = pieces::BISHOP;
                     break;                     
             }
             column++;//increments square
@@ -85,7 +90,6 @@ void Board::load_board(std::string& fen_string){
         fen_scan++;  //always go through a fen string          
     }
 }
-
 Board* Board::next_from_move(Move move){
     colors next_turn;
     Square** next_squares;
