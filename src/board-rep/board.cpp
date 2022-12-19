@@ -49,7 +49,7 @@ void Board::load_board(std::string& fen_string){
             row ++;
             column = 0;
         }
-        if (fen_string.at(fen_scan) > char('0') && fen_string.at(fen_scan) < char('9')){ //number for empty, can't be nine
+        else if (fen_string.at(fen_scan) > char('0') && fen_string.at(fen_scan) < char('9')){ //number for empty, can't be nine
             column += fen_string.at(fen_scan)-char('0');//Casts to int by subtracting 0 character value.
         }
         else{
