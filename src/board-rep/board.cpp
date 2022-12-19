@@ -36,6 +36,10 @@ Board::~Board() {
     delete[] squares;
 }
 
+Square Board::at(int row, int col){
+    return squares[row][col];
+}
+
 void Board::load_board(Board other){
     this->squares = other.squares;
     this->turn = other.turn;
