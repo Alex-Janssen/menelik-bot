@@ -1,4 +1,4 @@
-set name1=board_test
+set name1=Board_test
 
 
 g++ %name1%.cpp -w -W -o .\out\%name1%
