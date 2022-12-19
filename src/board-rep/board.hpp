@@ -33,6 +33,7 @@ class Board {
         int_fast8_t castle_status;
         colors turn = colors::NONE;
         colors victory = colors::NONE;
+        int turns_until_draw = 50;
 
         Board();
         Board(Square** squares);
