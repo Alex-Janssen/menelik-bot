@@ -29,6 +29,7 @@ class Board {
 
     public:
         Square** squares;
+        /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
         int_fast8_t castle_status;
         colors turn = colors::NONE;
         colors victory = colors::NONE;
