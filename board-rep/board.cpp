@@ -10,7 +10,6 @@ Board::Board(){
     this->squares = new Square * [8] {new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8], new Square[8]};
     //initialize to nobody's turn
     this->turn = colors::NONE;
-    //castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
     //initialize to all true
     this->castle_status = 0b1111;
 }
@@ -40,6 +39,7 @@ void Board::load_board(Board other){
 }
 
 void Board::load_board(std::string& fen_string){
+    //TODO
     int square_pos = 0;
     int fen_scan = 0;
     /*while (tick < 64 && fen_scan < std::strlen(fen_string)){
@@ -275,18 +275,190 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                 break;}
 
             case pieces::ROOK:{
+                //horizontal moves
+                for(int dx = -1; dx <= 1; dx+=2){
+                    Move move;
+                    int dest_x = pos_x + dx;
+                    int dest_y = pos_y;
+                    while(!any_piece_here(dest_x,dest_y)){
+                        if(dest_x < 0 || dest_x > 7){
+                            break;
+                        }
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                        dest_x += dx;
+                    }
+                    if(enemy_piece_here(dest_x,dest_y,turn)){
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                    }
+                }
+                //vertical moves
+                for(int dy = -1; dy <= 1; dy+=2){
+                    Move move;
+                    int dest_x = pos_x;
+                    int dest_y = pos_y + dy;
+                    while(!any_piece_here(dest_x,dest_y)){
+                        if(dest_y < 0 || dest_y > 7){
+                            break;
+                        }
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                        dest_y += dy;
+                    }
+                    if(enemy_piece_here(dest_x,dest_y,turn)){
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                    }
+                }
                 break;}
 
             case pieces::KNIGHT:{
+                //just a silly little algorithm to look at all 8 possible horsey moves
+                for(int dest_x = pos_x - 2; dest_x <= pos_x + 2; dest_x += 1){
+                    //boundary check x
+                    if(dest_x < 0 || dest_x > 7 || dest_x == pos_x){
+                        continue;
+                    }
+                    int x_factor = abs(dest_x-pos_x) % 2;
+                    for(int dest_y = pos_y - 1 - x_factor; dest_y <= pos_y + 1 + x_factor; dest_y += 1 + x_factor){
+                        //boundary check y
+                        if(dest_y < 0 || dest_y > 7 || dest_y == pos_y){
+                            continue;
+                        }
+                        
+                        //horsey only moves to where an ally is not
+                        if(!ally_piece_here(dest_x,dest_y,turn)){
+                            Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
+
+                    }
+                }
                 break;}
 
             case pieces::BISHOP:{
+                //diagonals are thankfully straight lines but sideways
+                for(int dx = -1; dx <= 1; dx+=2){
+                    for(int dy = -1; dy <= 1; dy+=2){
+                        Move move;
+                        int dest_x = pos_x + dx;
+                        int dest_y = pos_y + dy;
+                        while(!any_piece_here(dest_x,dest_y)){
+                            dest_x += dx;
+                            dest_y += dy;
+                            if(dest_x < 0 || dest_x > 7 || dest_y < 0 || dest_y > 7){
+                                break;
+                            }
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
+                        if(enemy_piece_here(dest_x,dest_y,turn)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
+                    }
+                }
                 break;}
 
             case pieces::QUEEN:{
+                //horizontal moves
+                for(int dx = -1; dx <= 1; dx+=2){
+                    Move move;
+                    int dest_x = pos_x + dx;
+                    int dest_y = pos_y;
+                    while(!any_piece_here(dest_x,dest_y)){
+                        if(dest_x < 0 || dest_x > 7){
+                            break;
+                        }
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                        dest_x += dx;
+                    }
+                    if(enemy_piece_here(dest_x,dest_y,turn)){
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                    }
+                }
+                //vertical moves
+                for(int dy = -1; dy <= 1; dy+=2){
+                    Move move;
+                    int dest_x = pos_x;
+                    int dest_y = pos_y + dy;
+                    while(!any_piece_here(dest_x,dest_y)){
+                        if(dest_y < 0 || dest_y > 7){
+                            break;
+                        }
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                        dest_y += dy;
+                    }
+                    if(enemy_piece_here(dest_x,dest_y,turn)){
+                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                        out.push_back(move);
+                    }
+                }
+                //diagonals moves
+                for(int dx = -1; dx <= 1; dx+=2){
+                    for(int dy = -1; dy <= 1; dy+=2){
+                        Move move;
+                        int dest_x = pos_x + dx;
+                        int dest_y = pos_y + dy;
+                        while(!any_piece_here(dest_x,dest_y)){
+                            dest_x += dx;
+                            dest_y += dy;
+                            if(dest_x < 0 || dest_x > 7 || dest_y < 0 || dest_y > 7){
+                                break;
+                            }
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
+                        if(enemy_piece_here(dest_x,dest_y,turn)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
+                    }
+                }
                 break;}
 
             case pieces::KING:{
+                //regular 3x3 movement block of king
+                for(int dest_x = pos_x - 1; dest_x <= pos_x + 1; dest_x ++){
+                    //boundary check x
+                    if(dest_x < 0 || dest_x > 7){
+                        continue;
+                    }
+                    for(int dest_y = pos_y - 1; dest_y <= pos_y + 1; pos_y ++){
+                        //boundary check y
+                        if(dest_y < 0 || dest_y > 7){
+                            continue;
+                        }
+                        //king can go to any square without an ally there 
+                        //(no check consideration; that is more expensive than seeing victory by king capture; TODO?)
+                        if(!ally_piece_here(pos_x, pos_y, turn)){
+                            Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
+                    }
+                }
+
+                //castling options
+                bool can_castle_KS;
+                bool can_castle_QS;
+
+                can_castle_KS = (((turn == colors::WHITE) * 0b0100 + (turn == colors::BLACK) * 0b0001) & castle_status) != 0;
+                can_castle_QS = (((turn == colors::WHITE) * 0b1000 + (turn == colors::BLACK) * 0b0010) & castle_status) != 0;
+
+                if(can_castle_KS){
+                    Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = 6, .end_y = pos_y};
+                    out.push_back(move);
+                }
+
+                if(can_castle_QS){
+                    Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = 2, .end_y = pos_y};
+                    out.push_back(move);
+                }
+
                 break;}
         }
     }
