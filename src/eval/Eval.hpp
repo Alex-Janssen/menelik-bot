@@ -3,15 +3,16 @@
 //
 
 #include "../board-rep/Board.hpp"
-#include <map>
 
 #ifndef MENELIK_EVAL_H
 #define MENELIK_EVAL_H
 
 
-class Load_Params {
+class Eval {
     public:
-        std::map<char, int> read_piece_vals;
+        Board to_evaluate;
+        Eval(Board to_evaluate);
+        float evaluate();
 };
 
 
