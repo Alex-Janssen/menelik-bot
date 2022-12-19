@@ -42,7 +42,8 @@ void Board::load_board(Board other){
 }
 
 void Board::load_board(std::string& fen_string){
-    load_board_pieces(fen_string.substr(0, fen_string.find(" ")));
+    std::string piece_string = fen_string.substr(0, fen_string.find(' '));
+    load_board_pieces(piece_string);
 }
 
 void Board::load_board_pieces(std::string& fen_string){

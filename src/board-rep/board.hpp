@@ -47,6 +47,7 @@ class Board {
 
         std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn);
         Square** board_copy();
+        int turns_until_draw;
         void load_board_pieces(std::string& fen_string);
         bool any_piece_here(int pos_x, int pos_y);
         bool ally_piece_here(int pos_x, int pos_y, colors team);
