@@ -3,16 +3,24 @@
 #include <functional>
 #include <vector>
 
+/// @brief Spawns a candidate node as a root value. Do not pass parent, but have to specify max-depth.
+/// @param board The boardstate whose next move is to be calculated
+/// @param eval An evaluation function which evaluates the board value
+/// @param max_depth Maximum depth of recursive generation of children
 Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, int max_depth){
     this->board = board;
     this->eval = eval;
     this->parent = nullptr;
-    this->children = this->spawn_children();
+    this->children = this->spawn_children();//Spawn children
     this->depth = 0;
     this->max_depth = max_depth;
     this->cur_board_val = eval(*(board));
     this->is_root = true;
 }
+/// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
+/// @param board The boardstate whose next move is to be calculated
+/// @param eval An evaluation function which evaluates the board value
+/// @param parent The parent that spawned it.
 Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, Candidate_Node* parent){
     this->board = board;
     this->eval = eval;
@@ -28,26 +36,38 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, C
     this->cur_board_val = eval(*(board));//Evaluate using flexibible function.
     this->is_root = false;
 }
-
+/// @brief Returns current depth of node.
+/// @return Depth of node
 int Candidate_Node::get_depth(){
     return this->depth;
 }
+/// @brief Returns current max depth of node.
+/// @return Max depth of node
 int Candidate_Node::get_max_depth(){
     return this->max_depth;
 }
+/// @brief Returns the propsective board val, assuming it is defined.
+/// @return Prospective board val
 float Candidate_Node::get_prospective_board_val(){
     return this->prospective_board_val;
 }
+/// @brief Returns the current board val
+/// @return Current board val
 float Candidate_Node::get_cur_board_val(){
     return this->cur_board_val;
 }
+/// @brief Returns true if the prospective val has been calculated on this node.
+/// @return prospective_val_calculated
 bool Candidate_Node::is_prospective_calced(){
     return this-> prospective_val_calculated;
 }
+/// @brief Returns the optimal move suceeding this node, which would be the optimal opponent move in an inner node and optimal local move for the root.
+/// @return Pointer to best move calculated.
 Candidate_Node* Candidate_Node::get_best_successor(){
     return this-> favorite_child;
 }
-
+/// @brief Initializes all candidate nodes encapsulating all moves from the board state
+/// @return A vector of candidate nodes reachable from this position.
 std::vector<Candidate_Node*> Candidate_Node::spawn_children(){
     std::vector<Candidate_Node*> to_return;
     //TODO iterate over all moves associated with this->board, create nodes, and then package in to_return.
@@ -58,11 +78,11 @@ std::vector<Candidate_Node*> Candidate_Node::spawn_children(){
     }
     return to_return;
 }
-
+/// @brief Alters the board val to the best/worst of its children.
 void Candidate_Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT WE NEED TO BE CAREFUL BECAUSE NEW NODES OF GREATER DEPTH WILL AFFECT RESULTS. FOR NOW, DESTROY THE CAND-NODES AND REGENERATE AFTER A MOVE IS MADE.
     int prospective_val;
     Candidate_Node* favorite;
-    if(this->is_root){
+    if(this->is_root){//Root tries to max children
         int max_option = -99999999999;//Arbitrarily small
         Candidate_Node* best_move = nullptr;
         for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
@@ -83,9 +103,9 @@ void Candidate_Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT
         prospective_val = max_option;
         favorite = best_move;
     }
-    else{
+    else{//Inner nodes minimize children.
         if(this-> depth < this->max_depth){//We recurse again
-            int min_option = 99999999999;//Arbitrarily small
+            int min_option = 99999999999;//Arbitrarily large
             Candidate_Node* best_opp_move = nullptr;
             for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
                 if(cand->is_prospective_calced()){

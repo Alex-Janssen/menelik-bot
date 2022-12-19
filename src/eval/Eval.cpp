@@ -12,11 +12,11 @@ Eval::Eval(Board to_evaluate){
     this->piece_vals = Load_Params::read_piece_vals();
 }
 
-float Eval::evaluate_board(){
+float Eval::evaluate_board_naive(){
     float eval_result;
-    for(int row = 0; row < 8; row++){
+    for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){
-            Square check = to_evaluate.squares[row][col];
+            Square check = to_evaluate.at(col, row);
             int sign;
             switch (check.color){
                 case colors::WHITE:
