@@ -2,6 +2,7 @@
 #include <fstream>
 #include <ctime>
 #include <string>
+#include "../eval/Eval_Functions.hpp"
 #include "../board-rep/board.hpp"
 #include "../eval/Eli_Algorithm.hpp"
 
@@ -30,8 +31,6 @@ bool mate_in_three_2 (){
     Board* result = algorithm->get_best_board(fen);
     return piece_enum_to_name(result->at(5,6).piece) == "PAWN" && color_enum_to_name(result->at(5,6).color)=="WHITE";
 }
-
-
 
 std::string write_result(bool res, std::string name){
     if(res){

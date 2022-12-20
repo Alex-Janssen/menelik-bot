@@ -2,6 +2,7 @@
 #include "Load_Params.hpp"
 #include "Eli_Algorithm.hpp"
 #include "../board-rep/board.hpp"
+#include "Eval_Functions.hpp"
 #include <functional>
 #include <iostream>
 #include <string>
