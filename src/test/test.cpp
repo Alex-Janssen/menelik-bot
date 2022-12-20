@@ -20,10 +20,20 @@ int main () {
     int fork_kn_1_end = time(NULL);
     fingerprint<<write_time(fork_kn_1_start, fork_kn_1_end, "King-rook knight fork 1");
 
+    int fork_kn_2_start = time(NULL);
+    fingerprint<<write_result(fork_king_knight_2(), "King-rook knight fork 2");
+    int fork_kn_2_end = time(NULL);
+    fingerprint<<write_time(fork_kn_2_start, fork_kn_2_end, "King-rook knight fork 2");
+
+    int mate_in_two_1_start = time(NULL);
+    fingerprint<<write_result(mate_in_two_1(), "Mate in Two 1");
+    int mate_in_two_1_end = time(NULL);
+    fingerprint<<write_time(mate_in_two_1_start, mate_in_two_1_end, "Mate in Two 1");
+
     int mate_in_three_1_start = time(NULL);
     fingerprint<<write_result(mate_in_three_1(), "Mate in Three 1");
-    int mate_in_three__1_end = time(NULL);
-    fingerprint<<write_time(mate_in_three_1_start, mate_in_three__1_end, "Mate in Three 1");
+    int mate_in_three_1_end = time(NULL);
+    fingerprint<<write_time(mate_in_three_1_start, mate_in_three_1_end, "Mate in Three 1");
 
     int mate_in_three_2_start = time(NULL);
     fingerprint<<write_result(mate_in_three_2(), "Mate in Three 2 (promotion)");
@@ -41,9 +51,21 @@ bool mate_in_one_1 (){
 }
 
 bool fork_king_knight_1 (){
-    std::string fen = "rnb1k1nr/2pppppp/8/3N2qb/p7/1P6/P1PPPPPP/RNBQKB1R w KQkq - 0 1"; //forksnight
+    std::string fen = "rnb1k1nr/2pppppp/8/3N2qb/p7/1P6/P1PPPPPP/RNBQKB1R w KQkq - 0 1"; //forkknight
     Board* result = Eli_Algorithm::get_best_board(fen);
     return piece_enum_to_name(result->at(2,6).piece) == "KNIGHT" && color_enum_to_name(result->at(5,6).color)=="WHITE";
+}
+
+bool fork_king_knight_2 (){
+    std::string fen = "2q1k3/8/n7/8/2N5/3B4/2PPPPPP/4K3 w - - 0 1"; //forkknight
+    Board* result = Eli_Algorithm::get_best_board(fen);
+    return piece_enum_to_name(result->at(3,5).piece) == "KNIGHT" && color_enum_to_name(result->at(3,5).color)=="WHITE";
+}
+
+bool mate_in_two_1 (){
+    std::string fen = "2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w - - 0 1"; //mate in 2
+    Board* result = Eli_Algorithm::get_best_board(fen);
+    return piece_enum_to_name(result->at(5,6).piece) == "QUEEN" && color_enum_to_name(result->at(5,6).color)=="WHITE";
 }
 
 bool mate_in_three_1 (){
