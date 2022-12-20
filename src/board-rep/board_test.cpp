@@ -16,19 +16,40 @@ int main() {
 	cout << "Input FEN string = " << fen_string << endl;
 
 	test_board->load_board(fen_string);
+	test_board->turn = colors::WHITE;
 	Board_Test::print_board(test_board);
 
+	cout << endl << endl;
 	cout << "Test next from a legal move: " << endl << endl;
-	cout << "Move = (3,3) to (4,4): " << endl;
-	test_board->turn = colors::WHITE;
+	cout << "Move = (d4) to (e5): " << endl << endl;
 	Move move = {.start_x = 3, .start_y = 3, .end_x = 4, .end_y = 4};
 	Board* test_next_board = test_board->next_from_move(move);
 
 	cout << "Original board: " << endl;
 	Board_Test::print_board(test_board);
-	
+	cout << endl;
+
 	cout << "Result board: " << endl;
 	Board_Test::print_board(test_next_board);
+
+	cout << endl << endl;
+	cout << "Test getting legal moves: " << endl << endl;
+	fen_string = "rnbqkbn1/pppppp1r/6p1/6Bp/8/3P1N2/PPP1PPPP/RN1QKB1R w KQq - 0 1";
+	test_board = new Board();
+	test_board->load_board(fen_string);
+	test_board->turn = colors::WHITE;
+	cout << "Board: " << endl;
+	Board_Test::print_board(test_board);
+	std::vector<Move> legal_moves = test_board->get_legal_moves();
+	cout << "Got legal moves" << endl;
+	for(Move move : legal_moves){
+		cout << piece_enum_to_name(test_board->at(move.start_x, move.start_y).piece) <<  " at ";
+		cout << '(' << (char) ('a'+ move.start_x) << move.start_y+1 << ')';
+		cout << " to ";
+		cout << '(' << (char) ('a'+ move.end_x) << move.end_y+1 << ')';
+		cout << endl;
+	}
+
 
 
 	return 0;
