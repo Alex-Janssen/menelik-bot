@@ -117,7 +117,7 @@ void identify_move(Board board){
 
 int main(){
     auto game = Board();
-    std::string fen = "r1bqkb1r/pppp1ppp/2n2n2/4p3/7P/6P1/PPPPPP2/RNBQKBNR w KQkq - 0 1";
+    std::string fen = "5R2/5pkp/6p1/8/6N1/8/3B4/R1K5 w - - 0 1";
     game.load_board(fen);
     identify_move(game);
 }
