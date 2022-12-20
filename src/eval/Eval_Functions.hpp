@@ -3,6 +3,7 @@
 //
 
 #include "../board-rep/Board.hpp"
+#include <map>
 
 #ifndef MENELIK_EVAL_H
 #define MENELIK_EVAL_H
@@ -10,11 +11,8 @@
 
 class Eval {
     public:
-        Board to_evaluate;
-        Eval(Board to_evaluate);
-        float evaluate_board_naive();
+        static float evaluate_board_naive(Board to_evaluate, std::map<char, int> piece_vals);
     private:
-        std::map<char, int> piece_vals;
 };
 
 

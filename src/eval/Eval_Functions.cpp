@@ -2,14 +2,13 @@
 // Created by ajans on 19.12.2022.
 //
 
-//SHOULD FUNCTIONS BE TIED TO EVAL, OR SHOULD THEY BE STATIC?
 
-#include "Eval.hpp"
+#include "Eval_Functions.hpp"
 #include "Load_Params.hpp"
 #include "../board-rep/Board.hpp"
 #include <map>
 
-float Eval::evaluate_board_naive(Board to_evaluate, std::map<char, int> piece_vals){
+float evaluate_board_naive(Board to_evaluate, std::map<char, int> piece_vals){
     float eval_result;
     for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){
