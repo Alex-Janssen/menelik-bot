@@ -3,19 +3,20 @@
 /// @param argv Args
 /// @return Next board state printed
 #include <string>
-#include "Eval_Operator.cpp"
+#include "Eli_Algorithm.cpp"
+#include "Eval.hpp"
 #include <iostream>
 
 
 int main(int argc, char *argv[]) { 
+    Eli_Algorithm* eli_algo = new Eli_Algorithm();
     if(argc > 2){
+        std::cout << argv << std::endl;
         std::string fen_string = argv[1];
-        operate(fen_string);
+        Board* best_board = eli_algo->get_best_board(fen_string);
+        std::cout << best_board->to_string();
     }
     else{
-        std::cout<<"Fen string not identified.";
+        std::cout<<"no arguments";
     }
-}
-static Board* identify_best_from_fen(std::string fen_string) { 
-    return operate_return_board(fen_string);
 }

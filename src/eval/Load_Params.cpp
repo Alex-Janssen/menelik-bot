@@ -8,7 +8,7 @@ using std::ifstream;
 
 /// @brief Takes file called piece_vals.txt and parses each value. Must be of format 'piece':intval
 /// @return Map of 'piece' to intval.
-std::map<char, int> Load_Params::read_piece_vals(){
+const std::map<char, int> Load_Params::read_piece_vals(){
     std::fstream p_vals;
     std::map<char, int> to_return;
     p_vals.open("src/eval/params/piece_vals.txt",std::ios::in); //read file
@@ -25,7 +25,7 @@ std::map<char, int> Load_Params::read_piece_vals(){
 }
 /// @brief Takes file called eval_params.txt and parses it. Must be of format "param":int
 /// @return Map from string to int.
-std::map<std::string, int> Load_Params::read_eval_params(){
+const std::map<std::string, int> Load_Params::read_eval_params(){
     std::fstream p_vals;
     std::map<std::string, int> to_return;
     p_vals.open("src/eval/params/eval_params.txt",std::ios::in); //read file
