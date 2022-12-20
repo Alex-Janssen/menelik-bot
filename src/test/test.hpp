@@ -17,12 +17,12 @@ class Test{
 
 std::string write_result(bool res, std::string name){
     if(res){
-        return "Passed test " +name; 
+        return "Passed test " +name+"\n"; 
     }
-    return "Failed test "+name;
+    return "Failed test "+name+"\n";
 }
 std::string write_time(int start, int end, std::string name){
-    return "Test " + name + ": " + std::to_string(end-start) + " seconds";
+    return "Test " + name + ": " + std::to_string(end-start) + " seconds \n";
 }
 
 #endif

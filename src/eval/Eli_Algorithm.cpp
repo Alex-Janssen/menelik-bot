@@ -55,7 +55,7 @@ float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, b
 }
 
 void Eli_Algorithm::identify_best_move(Board board){
-    int max_depth = eval_params.at("maxdepth");
+    int max_depth = (*eval_params.find("maxdepth")).second;
     std::vector<Board*> moves = spawn_children(&board);
     std::vector<float> scores;
     for(Board* move : moves){
@@ -77,7 +77,7 @@ void Eli_Algorithm::identify_best_move(Board board){
 }
 
 Board* Eli_Algorithm::get_best_board(Board* board){
-    int max_depth = eval_params.at("maxdepth");
+    int max_depth = (*eval_params.find("maxdepth")).second;
     std::vector<Board*> moves = spawn_children(board);
     std::vector<float> scores;
     for(Board* move : moves){
@@ -102,4 +102,14 @@ Board* Eli_Algorithm::get_best_board(std::string& fen_string){
     Board* game = new Board();
     game->load_board(fen_string);
     return get_best_board(game);
+}
+
+Move Eli_Algorithm::get_best_move(Board* board){
+    //TODO
+    return Move();
+}
+
+Move Eli_Algorithm::get_best_move(std::string& fen_string){
+    //TODO
+    return Move();
 }

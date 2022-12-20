@@ -13,9 +13,9 @@ class Eli_Algorithm : public Eval{
     const std::map<std::string, int> eval_params = Load_Params::read_eval_params();
     public: 
         Board* get_best_board(Board* board);
-        virtual Move get_best_move(Board* board);
+        Move get_best_move(Board* board);
         Board* get_best_board(std::string& fen_string);
-        virtual Move get_best_move(std::string& fen_string);
+        Move get_best_move(std::string& fen_string);
         Eli_Algorithm();
         ~Eli_Algorithm();
     private:

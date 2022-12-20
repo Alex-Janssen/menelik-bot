@@ -11,6 +11,7 @@ using std::ifstream;
 std::map<char, int> Load_Params::read_piece_vals(){
     std::fstream p_vals;
     std::map<char, int> to_return;
+    //ALEX YOUR TESTS FAIL BECAUSE OF THIS DUMB SHIT HARDCODED RELATIVE PATH AGAIN
     p_vals.open("src/eval/params/piece_vals.txt",std::ios::in); //read file
     if (p_vals.is_open()){ //if open
         std::string to_parse;
@@ -28,6 +29,7 @@ std::map<char, int> Load_Params::read_piece_vals(){
 std::map<std::string, int> Load_Params::read_eval_params(){
     std::fstream p_vals;
     std::map<std::string, int> to_return;
+    //ALEX YOUR TESTS FAIL BECAUSE OF THIS DUMB SHIT HARDCODED RELATIVE PATH AGAIN
     p_vals.open("src/eval/params/eval_params.txt",std::ios::in); //read file
     if (p_vals.is_open()){ //if open
         std::string to_parse;
