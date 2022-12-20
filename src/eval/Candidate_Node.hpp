@@ -17,6 +17,7 @@ class Candidate_Node {
         float get_cur_board_val();
         float get_prospective_board_val();
         int get_depth();
+        Board* get_board();
         int get_max_depth();
         bool is_prospective_calced();
         Candidate_Node* get_best_successor();

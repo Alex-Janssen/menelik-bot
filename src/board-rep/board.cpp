@@ -575,7 +575,7 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
     return out;
 }
 
-std::string Board::toString(){
+std::string Board::to_string(){
     std::string out = "";
 	for(int y = 7; y >= 0; y--){
 		for(int x = 0; x < 8; x++){

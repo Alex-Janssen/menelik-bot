@@ -16,6 +16,7 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, i
     this->max_depth = max_depth;
     this->cur_board_val = eval(*(board));
     this->is_root = true;
+    this->set_prospective_board_val();
 }
 /// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
 /// @param board The boardstate whose next move is to be calculated
@@ -35,6 +36,12 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, C
     }
     this->cur_board_val = eval(*(board));//Evaluate using flexibible function.
     this->is_root = false;
+    this->set_prospective_board_val();
+}
+/// @brief Returns board encapsulated by node
+/// @return Board.
+Board* Candidate_Node::get_board(){
+    return this->board;
 }
 /// @brief Returns current depth of node.
 /// @return Depth of node

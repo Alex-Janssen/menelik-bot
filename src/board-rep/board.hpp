@@ -40,7 +40,7 @@ class Board {
         std::vector<Move> get_legal_moves();
         Board* next_from_move(Move move);
         Square at(int x, int y);
-        std::string toString();
+        std::string to_string();
         int ep_x = -1;
         int ep_y = -1;
         /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside

@@ -9,9 +9,9 @@
 #define MENELIK_EVAL_H
 
 
-class Eval {
+class Eval_Functions {
     public:
-        static float evaluate_board_naive(Board to_evaluate, std::map<char, int> piece_vals);
+        static float evaluate_board_naive(Board to_evaluate);
     private:
 };
 
