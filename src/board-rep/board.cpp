@@ -250,7 +250,7 @@ std::vector<Move> Board::get_legal_moves(){
             this_piece_type = this->squares[pos_x][pos_y].piece;
             //get the moves this piece can make
             std::vector<Move> moves_this_piece;
-            moves_this_piece = get_moves_from_position(pos_x, pos_y, this_piece_type, this->turn);\
+            moves_this_piece = get_moves_from_position(pos_x, pos_y, this_piece_type, this->turn);
             //add this pieces possible moves to all possible moves
             legal_moves.insert(legal_moves.end(), moves_this_piece.begin(), moves_this_piece.end());
         }
@@ -338,17 +338,19 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                     Move move;
                     int dest_x = pos_x + dx;
                     int dest_y = pos_y;
-                    while(!any_piece_here(dest_x,dest_y)){
-                        if(dest_x < 0 || dest_x > 7){
+                    while(dest_x >= 0 && dest_x <= 7){
+                        if(any_piece_here(dest_x,dest_y)){
                             break;
                         }
                         move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                         out.push_back(move);
                         dest_x += dx;
                     }
-                    if(enemy_piece_here(dest_x,dest_y,turn)){
-                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
-                        out.push_back(move);
+                    if (dest_x >= 0 && dest_x <= 7){
+                        if(enemy_piece_here(dest_x,dest_y,turn)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
                     }
                 }
                 //vertical moves
@@ -356,17 +358,19 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                     Move move;
                     int dest_x = pos_x;
                     int dest_y = pos_y + dy;
-                    while(!any_piece_here(dest_x,dest_y)){
-                        if(dest_y < 0 || dest_y > 7){
+                    while(dest_y >= 0 && dest_y <= 7){
+                        if(any_piece_here(dest_x,dest_y)){
                             break;
                         }
                         move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                         out.push_back(move);
                         dest_y += dy;
                     }
-                    if(enemy_piece_here(dest_x,dest_y,turn)){
-                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
-                        out.push_back(move);
+                    if (dest_y >= 0 && dest_y <= 7){
+                        if(enemy_piece_here(dest_x,dest_y,turn)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
                     }
                 }
                 break;}
@@ -402,18 +406,20 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                         Move move;
                         int dest_x = pos_x + dx;
                         int dest_y = pos_y + dy;
-                        while(!any_piece_here(dest_x,dest_y)){
-                            dest_x += dx;
-                            dest_y += dy;
-                            if(dest_x < 0 || dest_x > 7 || dest_y < 0 || dest_y > 7){
+                        while(dest_x >= 0 && dest_x <= 7 && dest_y >= 0 && dest_y <= 7){
+                            if(any_piece_here(dest_x,dest_y)){
                                 break;
                             }
                             move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                             out.push_back(move);
+                            dest_x += dx;
+                            dest_y += dy;
                         }
-                        if(enemy_piece_here(dest_x,dest_y,turn)){
-                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
-                            out.push_back(move);
+                        if(dest_x >= 0 && dest_x <= 7 && dest_y >= 0 && dest_y <= 7){
+                            if(enemy_piece_here(dest_x,dest_y,turn)){
+                                move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                                out.push_back(move);
+                            }
                         }
                     }
                 }
@@ -425,17 +431,19 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                     Move move;
                     int dest_x = pos_x + dx;
                     int dest_y = pos_y;
-                    while(!any_piece_here(dest_x,dest_y)){
-                        if(dest_x < 0 || dest_x > 7){
+                    while(dest_x >= 0 && dest_x <= 7){
+                        if(any_piece_here(dest_x,dest_y)){
                             break;
                         }
                         move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                         out.push_back(move);
                         dest_x += dx;
                     }
-                    if(enemy_piece_here(dest_x,dest_y,turn)){
-                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
-                        out.push_back(move);
+                    if (dest_x >= 0 && dest_x <= 7){
+                        if(enemy_piece_here(dest_x,dest_y,turn)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
                     }
                 }
                 //vertical moves
@@ -443,37 +451,41 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                     Move move;
                     int dest_x = pos_x;
                     int dest_y = pos_y + dy;
-                    while(!any_piece_here(dest_x,dest_y)){
-                        if(dest_y < 0 || dest_y > 7){
+                    while(dest_y >= 0 && dest_y <= 7){
+                        if(any_piece_here(dest_x,dest_y)){
                             break;
                         }
                         move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                         out.push_back(move);
                         dest_y += dy;
                     }
-                    if(enemy_piece_here(dest_x,dest_y,turn)){
-                        move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
-                        out.push_back(move);
+                    if (dest_y >= 0 && dest_y <= 7){
+                        if(enemy_piece_here(dest_x,dest_y,turn)){
+                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                            out.push_back(move);
+                        }
                     }
                 }
-                //diagonals moves
+                //diagonal moves
                 for(int dx = -1; dx <= 1; dx+=2){
                     for(int dy = -1; dy <= 1; dy+=2){
                         Move move;
                         int dest_x = pos_x + dx;
                         int dest_y = pos_y + dy;
-                        while(!any_piece_here(dest_x,dest_y)){
-                            dest_x += dx;
-                            dest_y += dy;
-                            if(dest_x < 0 || dest_x > 7 || dest_y < 0 || dest_y > 7){
+                        while(dest_x >= 0 && dest_x <= 7 && dest_y >= 0 && dest_y <= 7){
+                            if(any_piece_here(dest_x,dest_y)){
                                 break;
                             }
                             move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                             out.push_back(move);
+                            dest_x += dx;
+                            dest_y += dy;
                         }
-                        if(enemy_piece_here(dest_x,dest_y,turn)){
-                            move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
-                            out.push_back(move);
+                        if(dest_x >= 0 && dest_x <= 7 && dest_y >= 0 && dest_y <= 7){
+                            if(enemy_piece_here(dest_x,dest_y,turn)){
+                                move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
+                                out.push_back(move);
+                            }
                         }
                     }
                 }
@@ -486,14 +498,15 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                     if(dest_x < 0 || dest_x > 7){
                         continue;
                     }
-                    for(int dest_y = pos_y - 1; dest_y <= pos_y + 1; pos_y ++){
+                    for(int dest_y = pos_y - 1; dest_y <= pos_y + 1; dest_y ++){
                         //boundary check y
                         if(dest_y < 0 || dest_y > 7){
                             continue;
                         }
                         //king can go to any square without an ally there 
                         //(no check consideration; that is more expensive than seeing victory by king capture; TODO?)
-                        if(!ally_piece_here(pos_x, pos_y, turn)){
+                        if(!ally_piece_here(dest_x, dest_y, turn)){
+                            std::cout << dest_x << dest_y << std::endl;
                             Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                             out.push_back(move);
                         }
@@ -508,13 +521,17 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                 can_castle_QS = (((turn == colors::WHITE) * 0b1000 + (turn == colors::BLACK) * 0b0010) & castle_status) != 0;
 
                 if(can_castle_KS){
-                    Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = 6, .end_y = pos_y};
-                    out.push_back(move);
+                    if(!ally_piece_here(5, pos_y, turn) && !ally_piece_here(6, pos_y, turn)){
+                        Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = 6, .end_y = pos_y};
+                        out.push_back(move);
+                    }
                 }
 
                 if(can_castle_QS){
-                    Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = 2, .end_y = pos_y};
-                    out.push_back(move);
+                    if(!ally_piece_here(1, pos_y, turn) && !ally_piece_here(2, pos_y, turn) && !ally_piece_here(3, pos_y, turn)){
+                        Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = 2, .end_y = pos_y};
+                        out.push_back(move);
+                    }
                 }
 
                 break;}
