@@ -1,13 +1,13 @@
-/// @brief Main method for API, however Menelik turns FEN to next move should be translated through this.
-/// @param argc Number of args
-/// @param argv Args
-/// @return Next board state printed
+
 #include <string>
 #include "Eli_Algorithm.cpp"
 #include "Eval.hpp"
 #include <iostream>
 
-
+/// @brief Main method for API, however Menelik turns FEN to next move should be translated through this.
+/// @param argc Number of args
+/// @param argv Args
+/// @return Next board state printed
 int main(int argc, char *argv[]) { 
     Eli_Algorithm* eli_algo = new Eli_Algorithm();
     if(argc > 2){
