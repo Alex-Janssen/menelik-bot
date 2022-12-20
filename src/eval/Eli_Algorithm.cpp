@@ -1,15 +1,19 @@
-#include "Candidate_Node.cpp"
-#include "Load_Params.cpp"
+#include "Candidate_Node.hpp"
+#include "Load_Params.hpp"
 #include "Eli_Algorithm.hpp"
-#include "../board-rep/board.cpp"
+#include "../board-rep/board.hpp"
 #include <functional>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <algorithm>
 
-const std::map<char, int> Eli_Algorithm::piece_vals = Load_Params::read_piece_vals();
-const std::map<std::string, int> eval_params = Load_Params::read_eval_params();
+
+Eli_Algorithm::Eli_Algorithm(){
+}
+
+Eli_Algorithm::~Eli_Algorithm(){
+}
 
 std::vector<Board*> Eli_Algorithm::spawn_children(Board* board){ //generates a list of pointers to possible future boards
     std::vector<Board*> to_return;

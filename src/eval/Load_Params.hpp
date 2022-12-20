@@ -11,8 +11,8 @@
 
 class Load_Params {
     public:
-        static const std::map<char, int> read_piece_vals();
-        static const std::map<std::string, int> read_eval_params();
+        static std::map<char, int> read_piece_vals() ;
+        static std::map<std::string, int> read_eval_params();
 };
 
 

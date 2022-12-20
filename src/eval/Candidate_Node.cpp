@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 
-#include "Eval_Functions.cpp"
+#include "Eval_Functions.hpp"
 /*
 /// @brief Spawns a candidate node as a root value. Do not pass parent, but have to specify max-depth.
 /// @param board The boardstate whose next move is to be calculated
