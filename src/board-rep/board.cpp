@@ -34,6 +34,7 @@ Board::Board(Square** squares, colors turn, unsigned int castle_status){
 };
 
 Board::~Board() {
+    std::cout << "deleted a board" << std::endl;
     delete[] squares;
 }
 
