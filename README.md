@@ -1,8 +1,9 @@
-# menelik-bot
+# Menelik Bot Version 0.1 Axum
+
 C++ Based Chess Bot
 
-Uses simple min-max algorithm and simulates boardstate on its own end.
+Uses simple min-max algorithm with alpha-beta pruning and simulates boardstate on its own end.
 
 Highly-configurable using .txt based parameters.
 
-Currently working on optimizing min-max with more intellegent pruning.
+Currently encorperating robust test suite and encapsulation of algorithm within sophisticated data-structure.
