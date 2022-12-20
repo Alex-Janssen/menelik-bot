@@ -1,7 +1,7 @@
-#include "Candidate_Node.hpp"
-#include "Eval_Functions.hpp"
-#include "Load_Params.hpp"
-#include "../board-rep/board.hpp"
+#include "Candidate_Node.cpp"
+#include "Eval_Functions.cpp"
+#include "Load_Params.cpp"
+#include "../board-rep/board.cpp"
 #include <functional>
 #include <map>
 #include <iostream>

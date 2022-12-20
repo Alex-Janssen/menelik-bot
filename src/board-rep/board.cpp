@@ -581,7 +581,7 @@ std::string Board::to_string(){
 		for(int x = 0; x < 8; x++){
             out += piece_to_char(at(x,y).piece, at(x,y).color);
 		}
-		cout << endl;
+		out += '\n';
 	}
     return out;
 }
