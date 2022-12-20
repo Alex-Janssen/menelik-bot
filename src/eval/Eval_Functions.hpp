@@ -6,8 +6,8 @@
 #include "Load_Params.cpp"
 #include <map>
 
-#ifndef MENELIK_EVAL_H
-#define MENELIK_EVAL_H
+#ifndef MENELIK_EVALFUNC_H
+#define MENELIK_EVALFUNC_H
 
 
 class Eval_Functions {
