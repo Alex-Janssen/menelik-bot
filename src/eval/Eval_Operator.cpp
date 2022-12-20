@@ -8,7 +8,7 @@
 #include <string>
 
 void identify_move(Board board){
-    std::function func = std::function(Eval_Functions::evaluate_board_naive);
+    std::function<float (Board)> func = std::function<float (Board)>(Eval_Functions::evaluate_board_naive);
     int max_depth = Load_Params::read_eval_params()["maxdepth"];
     Candidate_Node root = Candidate_Node(&board, func, max_depth);
     std::cout << root.get_best_successor()->get_board()->to_string();
