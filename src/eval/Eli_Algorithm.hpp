@@ -1,10 +1,12 @@
+
+#ifndef MENELIK_ELIALGO_H
+#define MENELIK_ELIALGO_H
+
 #include "Eval.hpp"
 #include "Load_Params.hpp"
 #include <map>
 #include <vector>
 
-#ifndef MENELIK_ELIALGO_H
-#define MENELIK_ELIALGO_H
 
 class Eli_Algorithm : public Eval{
     const std::map<char, int> piece_vals = Load_Params::read_piece_vals(); 

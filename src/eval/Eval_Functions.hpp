@@ -1,13 +1,13 @@
 //
 // Created by ajans on 19.12.2022.
 //
-
-#include "../board-rep/Board.hpp"
-#include "Load_Params.cpp"
-#include <map>
-
 #ifndef MENELIK_EVALFUNC_H
 #define MENELIK_EVALFUNC_H
+
+#include "../board-rep/Board.hpp"
+#include "Load_Params.hpp"
+#include <map>
+
 
 
 class Eval_Functions {
