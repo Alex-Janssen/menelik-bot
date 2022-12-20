@@ -82,55 +82,61 @@ std::vector<Candidate_Node*> Candidate_Node::spawn_children(){
 void Candidate_Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT WE NEED TO BE CAREFUL BECAUSE NEW NODES OF GREATER DEPTH WILL AFFECT RESULTS. FOR NOW, DESTROY THE CAND-NODES AND REGENERATE AFTER A MOVE IS MADE.
     int prospective_val;
     Candidate_Node* favorite;
-    if(this->is_root){//Root tries to max children
-        int max_option = -99999999999;//Arbitrarily small
-        Candidate_Node* best_move = nullptr;
-        for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
-            if(cand->is_prospective_calced()){
-                if(cand->get_prospective_board_val() > max_option){
-                    max_option = cand->get_prospective_board_val();
-                    best_move = cand;
-                }
-            }
-            else{
-                cand->set_prospective_board_val();
-                if(cand->get_prospective_board_val() > max_option){
-                    max_option = cand->get_prospective_board_val();
-                    best_move = cand;
-                }
-            }
-        }
-        prospective_val = max_option;
-        favorite = best_move;
+    if(abs(this->cur_board_val)>9000){//A king has been taken, don't recurse.
+        this->prospective_board_val = cur_board_val;
+        this->favorite_child = nullptr;    
     }
-    else{//Inner nodes minimize children.
-        if(this-> depth < this->max_depth){//We recurse again
-            int min_option = 99999999999;//Arbitrarily large
-            Candidate_Node* best_opp_move = nullptr;
+    else{
+        if(this->is_root){//Root tries to max children
+            int max_option = -99999999999;//Arbitrarily small
+            Candidate_Node* best_move = nullptr;
             for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
                 if(cand->is_prospective_calced()){
-                    if(cand->get_prospective_board_val() < min_option){
-                        min_option = cand->get_prospective_board_val();
-                        best_opp_move = cand;
+                    if(cand->get_prospective_board_val() > max_option){
+                        max_option = cand->get_prospective_board_val();
+                        best_move = cand;
                     }
                 }
                 else{
                     cand->set_prospective_board_val();
-                    if(cand->get_prospective_board_val() < min_option){
-                        min_option = cand->get_prospective_board_val();
-                        best_opp_move = cand;
+                    if(cand->get_prospective_board_val() > max_option){
+                        max_option = cand->get_prospective_board_val();
+                        best_move = cand;
                     }
                 }
             }
-            prospective_val = min_option;
-            favorite = best_opp_move;
+            prospective_val = max_option;
+            favorite = best_move;
         }
-        else{
-            prospective_val = this->get_cur_board_val();
-            favorite_child = nullptr;
+        else{//Inner nodes minimize children.
+            if(this-> depth < this->max_depth){//We recurse again
+                int min_option = 99999999999;//Arbitrarily large
+                Candidate_Node* best_opp_move = nullptr;
+                for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
+                    if(cand->is_prospective_calced()){
+                        if(cand->get_prospective_board_val() < min_option){
+                            min_option = cand->get_prospective_board_val();
+                            best_opp_move = cand;
+                        }
+                    }
+                    else{
+                        cand->set_prospective_board_val();
+                        if(cand->get_prospective_board_val() < min_option){
+                            min_option = cand->get_prospective_board_val();
+                            best_opp_move = cand;
+                        }
+                    }
+                }
+                prospective_val = min_option;
+                favorite = best_opp_move;
+            }
+            else{
+                prospective_val = this->get_cur_board_val();
+                favorite_child = nullptr;
+            }
         }
+        this->prospective_board_val = prospective_val;
+        this->favorite_child = favorite;
     }
     this->prospective_val_calculated = true;
-    this->prospective_board_val = prospective_val;
-    this->favorite_child = favorite;
 }

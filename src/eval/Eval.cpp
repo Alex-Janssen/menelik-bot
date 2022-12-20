@@ -2,6 +2,8 @@
 // Created by ajans on 19.12.2022.
 //
 
+//SHOULD FUNCTIONS BE TIED TO EVAL, OR SHOULD THEY BE STATIC?
+
 #include "Eval.hpp"
 #include "Load_Params.hpp"
 #include "../board-rep/Board.hpp"
