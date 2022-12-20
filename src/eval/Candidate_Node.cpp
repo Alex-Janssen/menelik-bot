@@ -16,7 +16,6 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, i
     this->max_depth = max_depth;
     this->is_root = true;
     this->cur_board_val = eval(*(board));
-    this->is_root = true;
     this->children = this->spawn_children();//Spawn children
 }
 /// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
@@ -127,16 +126,30 @@ void Candidate_Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT
         }
         else{//Inner nodes minimize children.
             if(this-> depth < this->max_depth){//We recurse again
-                int min_option = 99999999999;//Arbitrarily large
-                Candidate_Node* best_opp_move = nullptr;
-                for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
-                    if(cand->get_prospective_board_val() < min_option){
-                        min_option = cand->get_prospective_board_val();
-                        best_opp_move = cand;
+                if(this-> depth % 2 == 1){
+                    int min_option = 99999999999;//Arbitrarily large
+                    Candidate_Node* best_opp_move = nullptr;
+                    for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
+                        if(cand->get_prospective_board_val() < min_option){
+                            min_option = cand->get_prospective_board_val();
+                            best_opp_move = cand;
+                        }
                     }
+                    prospective_val = min_option;
+                    favorite = best_opp_move;
                 }
-                prospective_val = min_option;
-                favorite = best_opp_move;
+                else{
+                    int max_option = -99999999999;//Arbitrarily small
+                    Candidate_Node* best_move = nullptr;
+                    for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
+                        if(cand->get_prospective_board_val() > max_option){
+                            max_option = cand->get_prospective_board_val();
+                            best_move = cand;
+                        }
+                    }
+                    prospective_val = max_option;
+                    favorite = best_move;                    
+                }
             }
             else{
                 prospective_val = this->get_cur_board_val();
