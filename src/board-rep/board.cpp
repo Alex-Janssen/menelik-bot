@@ -34,7 +34,6 @@ Board::Board(Square** squares, colors turn, unsigned int castle_status){
 };
 
 Board::~Board() {
-    std::cout << "deleted a board" << std::endl;
     delete[] squares;
 }
 
@@ -284,19 +283,12 @@ std::vector<Move> Board::get_legal_moves(){
         for (int pos_y = 0; pos_y < 8; pos_y++){
             //get the type of the piece being observed
             pieces this_piece_type;
-            std::cout << "Get legal moves thing" << std::endl;
-            std::cout << to_string() << std::endl;
             this_piece_type = this->squares[pos_x][pos_y].piece;
-            std::cout << "Get legal moves thing 2" << std::endl;
             //get the moves this piece can make
             std::vector<Move> moves_this_piece;
-            std::cout << "Get legal moves thing 3" << std::endl;
-            std::cout << "x = " << pos_x << " y = " << pos_y << " type = " << piece_enum_to_name(this_piece_type) << std::endl;
             moves_this_piece = get_moves_from_position(pos_x, pos_y, this_piece_type, this->turn);
-            std::cout << "Get legal moves thing 4" << std::endl;
             //add this pieces possible moves to all possible moves
             legal_moves.insert(legal_moves.end(), moves_this_piece.begin(), moves_this_piece.end());
-            std::cout << "Get legal moves thing 5" << std::endl;
         }
     }
     return legal_moves;
@@ -547,7 +539,6 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                         if(dest_y < 0 || dest_y > 7){
                             continue;
                         }
-                        std::cout << "chcking king for x = " << dest_x << ", y = " << dest_y << std::endl;
                         //king can go to any square without an ally there 
                         //(no check consideration; that is more expensive than seeing victory by king capture; TODO?)
                         if(!ally_piece_here(dest_x, dest_y, turn)){
@@ -585,19 +576,10 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
 }
 
 std::string Board::to_string(){
-    std::cout << "tostringing" << std::endl;
     std::string out = "";
 	for(int y = 7; y >= 0; y--){
-		for(int x = 0; x < 8; x++){
-            std::cout << "gonna piecetochar" << x << y << std::endl;
-            std::cout << "getting at xy" << std::endl;
-            Square n = at(x,y);
-            std::cout << "getting xy color" << std::endl;
-            std::cout << color_enum_to_name(at(x,y).color) << std::endl;
-            std::cout << "getting xy piece" << std::endl;
-            std::cout << piece_enum_to_name(at(x,y).piece) << std::endl;
+		for(int x = 0; x < 8; x++){;
             out += piece_to_char(at(x,y).piece, at(x,y).color);
-            std::cout << "piecetochard" << x << y << std::endl;
 		}
 		out += '\n';
 	}

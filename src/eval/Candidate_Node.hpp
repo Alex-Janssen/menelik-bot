@@ -12,8 +12,8 @@
 
 class Candidate_Node {
     public:
-        Candidate_Node(Board* board, std::function<float(Board)> eval, int max_depth);
-        Candidate_Node(Board* board, std::function<float(Board)> eval, Candidate_Node* parent);
+        Candidate_Node(Board* board, std::function<float(Board*)> eval, int max_depth);
+        Candidate_Node(Board* board, std::function<float(Board*)> eval, Candidate_Node* parent);
         float get_cur_board_val();
         float get_prospective_board_val();
         int get_depth();
@@ -34,7 +34,7 @@ class Candidate_Node {
         int max_depth;
         std::vector<Candidate_Node*> spawn_children();
         void set_prospective_board_val();
-        std::function<int(Board)> eval;
+        std::function<float (Board *)> eval;
 
 };
 

@@ -11,7 +11,7 @@
 
 class Eval_Functions {
     public:
-        static float evaluate_board_naive(Board to_evaluate);
+        static float evaluate_board_naive(Board* to_evaluate);
     private:
 };
 

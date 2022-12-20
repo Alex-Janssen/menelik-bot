@@ -8,13 +8,9 @@
 #include <string>
 
 void identify_move(Board board){
-    std::cout << "identifying move" << std::endl;
-    std::function<float (Board)> func = std::function<float (Board)>(Eval_Functions::evaluate_board_naive);
-    std::cout << "identifying move 2" << std::endl;
+    std::function<float (Board *)> func = std::function<float (Board*)>(Eval_Functions::evaluate_board_naive);
     int max_depth = Load_Params::read_eval_params()["maxdepth"];
-    std::cout << "identifying move 3" << std::endl;
     Candidate_Node root = Candidate_Node(&board, func, max_depth);
-    std::cout << "identifying move 4" << std::endl;
     std::cout << root.get_best_successor()->get_board()->to_string();
 }
 

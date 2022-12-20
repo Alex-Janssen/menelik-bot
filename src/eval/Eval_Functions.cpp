@@ -7,13 +7,14 @@
 #include "Load_Params.hpp"
 #include "../board-rep/Board.hpp"
 #include <map>
+#include <iostream>
 
-float Eval_Functions::evaluate_board_naive(Board to_evaluate){
+float Eval_Functions::evaluate_board_naive(Board* to_evaluate){
     std::map<char, int> piece_vals = Load_Params::read_piece_vals();//Do not read piece values every time.
     float eval_result;
     for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){
-            Square check = to_evaluate.at(col, row);
+            Square check = to_evaluate->at(col, row);
             int sign;
             switch (check.color){
                 case colors::WHITE:
