@@ -8,8 +8,9 @@
 #include <map>
 //#include <iostream>
 
-std::map<char, int> piece_vals = Load_Params::read_piece_vals();
-float Eval_Functions::evaluate_board_naive(Board* to_evaluate){
+
+float Eval_Functions::evaluate_board_naive(Board* to_evaluate, std::map<char, int> piece_vals){
+    std::cout<<"King val read: "<<piece_vals['k']<<std::endl;
     float eval_result = 0;
     for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){
