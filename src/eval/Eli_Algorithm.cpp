@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
+//#include <algorithm>
 
 
 Eli_Algorithm::Eli_Algorithm(){
@@ -55,47 +55,85 @@ float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, b
 }
 
 void Eli_Algorithm::identify_best_move(Board board){
+    float eval;
+    float best_eval;
     int max_depth = (*eval_params.find("maxdepth")).second;
     std::vector<Board*> moves = spawn_children(&board);
-    std::vector<float> scores;
-    for(Board* move : moves){
-        scores.push_back(minimax(move,max_depth,-99999999,99999999,board.turn!=colors::WHITE));
-    }
+    Board* best_board = moves[0];
 
-    auto it = std::minmax_element(scores.begin(), scores.end());
-    int idx = 0;
-    if(board.turn==colors::WHITE){ //max index
-        idx = std::distance(scores.begin(), it.second);
-    } else { //min index
-        idx = std::distance(scores.begin(), it.first);
+    if(board.turn==colors::WHITE){ //max
+        best_eval = -99999999;
+        auto it = moves.begin();
+        while(it != moves.end()){
+            eval = (minimax(*it,max_depth,-99999999,99999999,board.turn!=colors::WHITE));
+            if(best_eval < eval){
+                best_board = *it;
+                best_eval = eval;
+                it++;
+                if(eval > 103){break;}
+            }
+            else{
+                it = moves.erase(it);
+            }
+        }
+    } else { //min
+        best_eval = 99999999;
+        auto it = moves.begin();
+        while(it != moves.end()){
+            eval = (minimax(*it,max_depth,-99999999,99999999,board.turn!=colors::WHITE));
+            if(best_eval > eval){
+                best_board = *it;
+                best_eval = eval;
+                it++;
+                if(eval < -103){break;}
+            }
+            else{
+                it = moves.erase(it);
+            }
+        }
     }
-    //for(int i = 0; i < moves.size(); i++){ //prints all possible first moves and predicted loss
-        //std::cout << moves[i]->to_string() << std::endl;
-        //std::cout << "score = " << scores[i] << std::endl;
-    //}
-    std::cout << moves[idx]->to_string() << std::endl; //top move
+    std::cout << best_board->to_string() << std::endl; //top move
 }
 
 Board* Eli_Algorithm::get_best_board(Board* board){
+    float eval;
+    float best_eval;
     int max_depth = (*eval_params.find("maxdepth")).second;
     std::vector<Board*> moves = spawn_children(board);
-    std::vector<float> scores;
-    for(Board* move : moves){
-        scores.push_back(minimax(move,max_depth,-99999999,99999999,board->turn!=colors::WHITE));
-    }
+    Board* best_board = moves[0];
 
-    auto it = std::minmax_element(scores.begin(), scores.end());
-    int idx = 0;
-    if(board->turn==colors::WHITE){ //max index
-        idx = std::distance(scores.begin(), it.second);
-    } else { //min index
-        idx = std::distance(scores.begin(), it.first);
+    if(board->turn==colors::WHITE){ //max
+        best_eval = -99999999;
+        auto it = moves.begin();
+        while(it != moves.end()){
+            eval = (minimax(*it,max_depth,-99999999,99999999,board->turn!=colors::WHITE));
+            if(best_eval < eval){
+                best_board = *it;
+                best_eval = eval;
+                it++;
+                if(eval > 103){break;}
+            }
+            else{
+                it = moves.erase(it);
+            }
+        }
+    } else { //min
+        best_eval = 99999999;
+        auto it = moves.begin();
+        while(it != moves.end()){
+            eval = (minimax(*it,max_depth,-99999999,99999999,board->turn!=colors::WHITE));
+            if(best_eval > eval){
+                best_board = *it;
+                best_eval = eval;
+                it++;
+                if(eval < -103){break;}
+            }
+            else{
+                it = moves.erase(it);
+            }
+        }
     }
-    //for(int i = 0; i < moves.size(); i++){ //prints all possible first moves and predicted loss
-        //std::cout << moves[i]->to_string() << std::endl;
-        //std::cout << "score = " << scores[i] << std::endl;
-    //}
-    return moves[idx];
+    return best_board;
 }
 
 Board* Eli_Algorithm::get_best_board(std::string& fen_string){
