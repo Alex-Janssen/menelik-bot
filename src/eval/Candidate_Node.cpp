@@ -39,6 +39,7 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board*)> eval, 
     this->cur_board_val = eval(board);//Evaluate using flexibible function.
 }
 Candidate_Node::~Candidate_Node(){
+    delete board;
 }
 /// @brief Returns board encapsulated by node
 /// @return Board.
