@@ -1,5 +1,6 @@
 #include "Candidate_Node.cpp"
 #include "Load_Params.cpp"
+#include "Eval_Functions.cpp"
 #include "../board-rep/board.cpp"
 //#include <functional>
 #include <iostream>
@@ -7,51 +8,6 @@
 #include <vector>
 #include <algorithm>
 
-
-float evaluate_board_naive(Board* to_evaluate){
-    float eval_result = 0;
-    for(int row = 0; row < 8; row++){//Iterate over every square
-        for(int col = 0; col < 8; col++){
-            Square check = to_evaluate->at(col, row);
-            int sign;
-            switch (check.color){
-                case colors::WHITE:
-                    sign = 1;
-                    break;
-                case colors::BLACK:
-                    sign = -1;
-                    break;
-                case colors::NONE:
-                    sign = 0;
-                    break;
-            }
-            if(sign != 0){ //not needed?
-                switch (check.piece){
-                    case pieces::PAWN:
-                        eval_result += sign;
-                        break;
-                    case pieces::ROOK:
-                        eval_result += sign*5;
-                        break;
-                    case pieces::BISHOP:
-                        eval_result += sign*3;
-                        break;
-                    case pieces::KNIGHT:
-                        eval_result += sign*3;
-                        break;
-                    case pieces::QUEEN:
-                        eval_result += sign*9;
-                        break;
-                    case pieces::KING:
-                        eval_result += sign*999;
-                        break;
-                }
-            }
-
-        }
-    }
-    return eval_result;
-}
 
 std::vector<Board*> spawn_children(Board* board){ //generates a list of pointers to possible future boards
     std::vector<Board*> to_return;
@@ -66,8 +22,8 @@ std::vector<Board*> spawn_children(Board* board){ //generates a list of pointers
 
 float minimax(Board* board, int depth, float alpha, float beta, bool maximizing_player){ //returns mininmal loss value
     float eval;
-    if(depth == 0 || abs(evaluate_board_naive(board)) > 39){
-        return evaluate_board_naive(board)+depth*0.1;
+    if(depth == 0 || abs(Eval_Functions::evaluate_board_naive(board)) > 39){
+        return Eval_Functions::evaluate_board_naive(board)+depth*0.1;
     }
 
     if(maximizing_player){
