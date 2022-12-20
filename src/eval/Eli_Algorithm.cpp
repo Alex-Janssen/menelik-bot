@@ -99,13 +99,18 @@ Board* Eli_Algorithm::get_best_board(Board* board){
     float eval;
     float best_eval;
     int max_depth = (*eval_params.find("maxdepth")).second;
+    std::cout << "here 1" << std::endl;
     std::vector<Board*> moves = spawn_children(board);
+    std::cout << "here 2" << std::endl;
     Board* best_board = moves[0];
 
     if(board->turn==colors::WHITE){ //max
         best_eval = -99999999;
         auto it = moves.begin();
         while(it != moves.end()){
+            std::cout << "here 3" << std::endl;
+            std::cout << "testing board" << std::endl;
+            std::cout << (**it).to_string() << std::endl;
             eval = (minimax(*it,max_depth,-99999999,99999999,board->turn!=colors::WHITE));
             if(best_eval < eval){
                 best_board = *it;
@@ -117,6 +122,7 @@ Board* Eli_Algorithm::get_best_board(Board* board){
                 it = moves.erase(it);
             }
         }
+        std::cout << "here 4" << std::endl;
     } else { //min
         best_eval = 99999999;
         auto it = moves.begin();
@@ -132,6 +138,7 @@ Board* Eli_Algorithm::get_best_board(Board* board){
                 it = moves.erase(it);
             }
         }
+        std::cout << "here 5" << std::endl;
     }
     return best_board;
 }
