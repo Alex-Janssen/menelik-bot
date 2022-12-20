@@ -10,7 +10,7 @@ int main() {
 	cout << "Test Constructor: " << endl << endl;
 	Board_Test::print_board(test_board);
 
-	std::string fen_string = "2b1kb2/p2pp1pp/1r1q1r2/p1n4n/PpPQ2p1/1N2P3/P2PKPPP/R1B2BNR w HA - 0 1";
+	std::string fen_string = "2b1kb2/p2pp1pp/1r1q1r2/p1n4n/PpPQ2p1/1N2P3/P2PKPPP/R1B2BNR w Kq f6 0 1";
 
 	cout << "Test Loading from FEN: " << endl << endl;
 	cout << "Input FEN string = " << fen_string << endl;
@@ -18,6 +18,8 @@ int main() {
 	test_board->load_board(fen_string);
 	test_board->turn = colors::WHITE;
 	Board_Test::print_board(test_board);
+	cout << "EP target at " << test_board->ep_x << ' ' << test_board->ep_y << endl;
+	cout << "Castling availability " << (int)test_board->castle_status << endl;
 
 	cout << endl << endl;
 	cout << "Test next from a legal move: " << endl << endl;

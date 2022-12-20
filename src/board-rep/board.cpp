@@ -49,8 +49,10 @@ void Board::load_board(Board other){
 void Board::load_board(std::string& fen_string){
     std::string piece_string = fen_string.substr(0, fen_string.find(' '));
     char active_color = fen_string[piece_string.length()+1];
-    std::string castling_availability = fen_string.substr(piece_string.length()+3, fen_string.substr(piece_string.length()+3).find(' '));
-    std::string en_passant_target = fen_string.substr(fen_string.substr(piece_string.length()+3).find(' ')+1, fen_string.substr(fen_string.substr(piece_string.length()+3).find(' ')+1).find(' '));
+    std::string after_active_color = fen_string.substr(piece_string.length()+3);
+    std::string castling_availability = after_active_color.substr(0, after_active_color.find(' '));
+    std::string after_castling = after_active_color.substr(after_active_color.find(' ')+1);
+    std::string en_passant_target = after_castling.substr(0, after_castling.find(' '));
     load_board_pieces(piece_string);
     auto contains = [] (std::string str, char target) -> bool {
         if(str.find(target) == -1){
@@ -540,7 +542,6 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
                         //king can go to any square without an ally there 
                         //(no check consideration; that is more expensive than seeing victory by king capture; TODO?)
                         if(!ally_piece_here(dest_x, dest_y, turn)){
-                            std::cout << dest_x << dest_y << std::endl;
                             Move move = {.start_x = pos_x, .start_y = pos_y, .end_x = dest_x, .end_y = dest_y};
                             out.push_back(move);
                         }

@@ -40,11 +40,13 @@ class Board {
         std::vector<Move> get_legal_moves();
         Board* next_from_move(Move move);
         Square at(int x, int y);
+        int ep_x = -1;
+        int ep_y = -1;
+        /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
+        int_fast8_t castle_status;
 
     private:
 
-        /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
-        int_fast8_t castle_status;
         Square** squares;
         int turns_until_draw = 50;
         std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn);
@@ -53,8 +55,6 @@ class Board {
         bool any_piece_here(int pos_x, int pos_y);
         bool ally_piece_here(int pos_x, int pos_y, colors team);
         bool enemy_piece_here(int pos_x, int pos_y, colors team);
-        int ep_x = -1;
-        int ep_y = -1;
 
 };
 
