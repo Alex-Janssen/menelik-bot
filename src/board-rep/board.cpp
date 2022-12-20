@@ -575,6 +575,17 @@ std::vector<Move> Board::get_moves_from_position(int pos_x, int pos_y, pieces pi
     return out;
 }
 
+std::string Board::toString(){
+    std::string out = "";
+	for(int y = 7; y >= 0; y--){
+		for(int x = 0; x < 8; x++){
+            out += piece_to_char(at(x,y).piece, at(x,y).color);
+		}
+		cout << endl;
+	}
+    return out;
+}
+
 bool Board::any_piece_here(int x,int y){
     return squares[x][y].piece != pieces::NONE;
 }
