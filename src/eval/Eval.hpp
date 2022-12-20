@@ -12,7 +12,7 @@ class Eval {
     public:
         Board to_evaluate;
         Eval(Board to_evaluate);
-        float evaluate_board();
+        float evaluate_board_naive();
     private:
         std::map<char, int> piece_vals;
 };
