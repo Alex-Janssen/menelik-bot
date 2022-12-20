@@ -8,36 +8,42 @@
 /// @param board The boardstate whose next move is to be calculated
 /// @param eval An evaluation function which evaluates the board value
 /// @param max_depth Maximum depth of recursive generation of children
-Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, int max_depth){
+Candidate_Node::Candidate_Node(Board* board, std::function<float(Board*)> eval, int max_depth){
     this->board = board;
     this->eval = eval;
     this->parent = nullptr;
     this->depth = 0;
     this->max_depth = max_depth;
     this->is_root = true;
+<<<<<<< HEAD
     this->cur_board_val = eval(*(board));
+=======
+    this->cur_board_val = eval(board);
+    this->is_root = true;
+>>>>>>> df35e08aea4faef6231705523a3c2e706f258931
     this->children = this->spawn_children();//Spawn children
 }
 /// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
 /// @param board The boardstate whose next move is to be calculated
 /// @param eval An evaluation function which evaluates the board value
 /// @param parent The parent that spawned it.
-Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, Candidate_Node* parent){
+Candidate_Node::Candidate_Node(Board* board, std::function<float(Board*)> eval, Candidate_Node* parent, bool find_out){
     this->board = board;
     this->eval = eval;
     this->parent = parent;
     this->depth = parent->get_depth()+1;
     this->max_depth = parent->get_max_depth();
-    std::cout << "depth = " << depth;
-    std::cout << " parent depth = " << parent->get_depth() << std::endl;
+    this->is_root = find_out;
     if(this->depth < this->max_depth){
         this->children = this->spawn_children();
     }
     else{//No children if at max depth
         this->children = std::vector<Candidate_Node*>();
     }
-    this->cur_board_val = eval(*(board));//Evaluate using flexibible function.
-    this->is_root = false;
+    this->cur_board_val = eval(board);//Evaluate using flexibible function.
+}
+Candidate_Node::~Candidate_Node(){
+    delete board;
 }
 /// @brief Returns board encapsulated by node
 /// @return Board.
@@ -81,25 +87,16 @@ Candidate_Node* Candidate_Node::get_best_successor(){
     return this-> favorite_child;
 }
 
-using std::cout;
 /// @brief Initializes all candidate nodes encapsulating all moves from the board state
 /// @return A vector of candidate nodes reachable from this position.
 std::vector<Candidate_Node*> Candidate_Node::spawn_children(){
     std::vector<Candidate_Node*> to_return;
     //iterate over all moves associated with this->board, create nodes, and then package in to_return.
     std::vector<Move> moves = this->board->get_legal_moves();
-    cout << "Legal moves from position: " << std::endl;
-    for(Move move : moves){
-		cout << piece_enum_to_name(this->board->at(move.start_x, move.start_y).piece) <<  " at ";
-		cout << '(' << (char) ('a'+ move.start_x) << move.start_y+1 << ')';
-		cout << " to ";
-		cout << '(' << (char) ('a'+ move.end_x) << move.end_y+1 << ')';
-		cout << std::endl;
-	}
     for(Move move : moves){
         Board* associated_board = this->board->next_from_move(move);
-        Candidate_Node new_child = Candidate_Node(associated_board, eval, this);
-        to_return.push_back(&new_child);
+        Candidate_Node* new_child = new Candidate_Node(associated_board, eval, this, false);
+        to_return.push_back(new_child);
     }
     return to_return;
 }
@@ -109,15 +106,16 @@ void Candidate_Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT
     Candidate_Node* favorite;
     if(abs(this->cur_board_val)>9000){//A king has been taken, don't recurse.
         this->prospective_board_val = cur_board_val;
-        this->favorite_child = nullptr;    
+        this->favorite_child = nullptr; 
     }
     else{
         if(this->is_root){//Root tries to max children
             int max_option = -99999999999;//Arbitrarily small
             Candidate_Node* best_move = nullptr;
             for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
-                if(cand->get_prospective_board_val() > max_option){
-                    max_option = cand->get_prospective_board_val();
+                float possible = cand->get_prospective_board_val();
+                if(possible > max_option){
+                    max_option = possible;
                     best_move = cand;
                 }
             }
