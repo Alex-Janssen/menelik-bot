@@ -8,12 +8,9 @@
 #include <vector>
 #include <algorithm>
 
-Eli_Algorithm::~Eli_Algorithm(){
+const std::map<char, int> Eli_Algorithm::piece_vals = Load_Params::read_piece_vals();
+const std::map<std::string, int> eval_params = Load_Params::read_eval_params();
 
-}
-Eli_Algorithm::Eli_Algorithm(){
-
-}
 std::vector<Board*> Eli_Algorithm::spawn_children(Board* board){ //generates a list of pointers to possible future boards
     std::vector<Board*> to_return;
     std::vector<Move> moves = board->get_legal_moves();

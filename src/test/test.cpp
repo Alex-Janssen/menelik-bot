@@ -4,6 +4,7 @@
 #include <string>
 #include "Menelik_Main.hpp"
 #include "board-rep/board.hpp"
+#include "Eli_Algorithm.cpp"
 
 int main () {
     std::ofstream fingerprint;
@@ -25,13 +26,13 @@ int main () {
 
 bool mate_in_one (){
     std::string fen = "r1bqk1nr/pppp1ppp/2n5/4p3/1bB5/4PQ2/PPPP1PPP/RNB1K1NR w KQkq - 0 1"; //scholar's mate
-    Board* result = Menelik_Main::identify_best_from_fen(fen);
+    Board* result = Eli_Algorithm::get_best_board(fen);
     return piece_enum_to_name(result->at(5,6).piece) == "QUEEN" && color_enum_to_name(result->at(5,6).color)=="WHITE";
 }
 
 bool fork_king_knight (){
     std::string fen = "rnb1k1nr/2pppppp/8/3N2qb/p7/1P6/P1PPPPPP/RNBQKB1R w KQkq - 0 1"; //forksnight
-    Board* result = Menelik_Main::identify_best_from_fen(fen);
+    Board* result = Eli_Algorithm::get_best_board(fen);
     return piece_enum_to_name(result->at(2,6).piece) == "KNIGHT" && color_enum_to_name(result->at(5,6).color)=="WHITE";
 }
 

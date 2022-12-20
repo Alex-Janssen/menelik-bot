@@ -1,4 +1,3 @@
-
 #include <string>
 #include "Eli_Algorithm.cpp"
 #include "Eval.hpp"
@@ -9,11 +8,10 @@
 /// @param argv Args
 /// @return Next board state printed
 int main(int argc, char *argv[]) { 
-    Eli_Algorithm* eli_algo = new Eli_Algorithm();
     if(argc > 2){
         std::cout << argv << std::endl;
         std::string fen_string = argv[1];
-        Board* best_board = eli_algo->get_best_board(fen_string);
+        Board* best_board = Eli_Algorithm::get_best_board(fen_string);
         std::cout << best_board->to_string();
     }
     else{
