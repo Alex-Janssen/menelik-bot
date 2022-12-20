@@ -37,8 +37,8 @@ int main () {
 
     int mate_in_three_2_start = time(NULL);
     fingerprint<<write_result(mate_in_three_2(), "Mate in Three 2 (promotion)");
-    int mate_in_three__2_end = time(NULL);
-    fingerprint<<write_time(mate_in_three_2_start, mate_in_three__2_end, "Mate in Three 2 (promotion)");
+    int mate_in_three_2_end = time(NULL);
+    fingerprint<<write_time(mate_in_three_2_start, mate_in_three_2_end, "Mate in Three 2 (promotion)");
 
     fingerprint.close();
     return 0;
