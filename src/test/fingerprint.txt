@@ -1,0 +1,8 @@
+Failed test Mate in one 1
+Test Mate in one 1: 0 seconds 
+Failed test King-rook knight fork 1
+Test King-rook knight fork 1: 0 seconds 
+Failed test Mate in Three 1
+Test Mate in Three 1: 0 seconds 
+Failed test Mate in Three 2 (promotion)
+Test Mate in Three 2 (promotion): 0 seconds 

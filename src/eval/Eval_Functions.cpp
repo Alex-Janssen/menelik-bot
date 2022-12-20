@@ -3,14 +3,17 @@
 //
 
 #include "Eval_Functions.hpp"
-#include "Load_Params.hpp"
+//TODO IMMEDIATELY FIGURE THIS OUT
+#ifndef MENELIK_LOADPARAM_CPP
+#define MENELIK_LOADPARAM_CPP
+#include "Load_Params.cpp"
+#endif
 #include "../board-rep/Board.hpp"
 #include <map>
 //#include <iostream>
 
 
 float Eval_Functions::evaluate_board_naive(Board* to_evaluate, std::map<char, int> piece_vals){
-    std::cout<<"King val read: "<<piece_vals['k']<<std::endl;
     float eval_result = 0;
     for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){

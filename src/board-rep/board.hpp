@@ -2,12 +2,11 @@
 // Created by ajans on 16.12.2022.
 //
 
-#include <string>
-#include <vector>
-
 #ifndef MENELIK_BOARD_H
 #define MENELIK_BOARD_H
 
+#include <string>
+#include <vector>
 
 enum class colors {BLACK, WHITE, NONE}; //Defines colors which are linked to a square
 enum class pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, NONE}; //Defines piece on square.

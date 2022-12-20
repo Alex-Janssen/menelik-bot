@@ -9,9 +9,10 @@
 /// @return Next board state printed
 int main(int argc, char *argv[]) { 
     if(argc > 2){
+        Eli_Algorithm* algo = new  Eli_Algorithm();
         std::cout << argv << std::endl;
         std::string fen_string = argv[1];
-        Board* best_board = Eli_Algorithm::get_best_board(fen_string);
+        Board* best_board = algo->get_best_board(fen_string);
         std::cout << best_board->to_string();
     }
     else{

@@ -1,14 +1,12 @@
 //
 // Created by ajans on 19.12.2022.
 //
+#ifndef MENELIK_CAND_NODE
+#define MENELIK_CAND_NODE
 
 #include "../board-rep/Board.hpp"
 #include <functional>
 #include <vector>
-
-#ifndef MENELIK_CAND_NODE
-#define MENELIK_CAND_NODE
-
 
 class Candidate_Node {
     public:
