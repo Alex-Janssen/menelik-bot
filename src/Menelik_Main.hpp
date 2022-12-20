@@ -11,7 +11,6 @@
 class Menelik_Main {
     public:
         int main(int argc, char *argv[]);
-        static Board* identify_best_from_fen(std::string fen_string);
 };
 
 
