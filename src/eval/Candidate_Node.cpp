@@ -76,6 +76,9 @@ bool Candidate_Node::is_prospective_calced(){
 /// @brief Returns the optimal move suceeding this node, which would be the optimal opponent move in an inner node and optimal local move for the root.
 /// @return Pointer to best move calculated.
 Candidate_Node* Candidate_Node::get_best_successor(){
+    if (!this->is_prospective_calced()){
+        this->set_prospective_board_val();
+    }    
     return this-> favorite_child;
 }
 
