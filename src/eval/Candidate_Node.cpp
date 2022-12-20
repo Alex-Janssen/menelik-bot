@@ -12,11 +12,11 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, i
     this->board = board;
     this->eval = eval;
     this->parent = nullptr;
-    this->children = this->spawn_children();//Spawn children
     this->depth = 0;
     this->max_depth = max_depth;
-    this->cur_board_val = eval(*(board));
     this->is_root = true;
+    this->cur_board_val = eval(*(board));
+    this->children = this->spawn_children();//Spawn children
 }
 /// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
 /// @param board The boardstate whose next move is to be calculated
@@ -28,6 +28,8 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, C
     this->parent = parent;
     this->depth = parent->get_depth()+1;
     this->max_depth = parent->get_max_depth();
+    std::cout << "depth = " << depth;
+    std::cout << " parent depth = " << parent->get_depth() << std::endl;
     if(this->depth < this->max_depth){
         this->children = this->spawn_children();
     }
@@ -75,12 +77,23 @@ bool Candidate_Node::is_prospective_calced(){
 Candidate_Node* Candidate_Node::get_best_successor(){
     return this-> favorite_child;
 }
+
+using std::cout;
 /// @brief Initializes all candidate nodes encapsulating all moves from the board state
 /// @return A vector of candidate nodes reachable from this position.
 std::vector<Candidate_Node*> Candidate_Node::spawn_children(){
     std::vector<Candidate_Node*> to_return;
-    //TODO iterate over all moves associated with this->board, create nodes, and then package in to_return.
-    for(Move move : this->board->get_legal_moves()){
+    //iterate over all moves associated with this->board, create nodes, and then package in to_return.
+    std::vector<Move> moves = this->board->get_legal_moves();
+    cout << "Legal moves from position: " << std::endl;
+    for(Move move : moves){
+		cout << piece_enum_to_name(this->board->at(move.start_x, move.start_y).piece) <<  " at ";
+		cout << '(' << (char) ('a'+ move.start_x) << move.start_y+1 << ')';
+		cout << " to ";
+		cout << '(' << (char) ('a'+ move.end_x) << move.end_y+1 << ')';
+		cout << std::endl;
+	}
+    for(Move move : moves){
         Board* associated_board = this->board->next_from_move(move);
         Candidate_Node new_child = Candidate_Node(associated_board, eval, this);
         to_return.push_back(&new_child);

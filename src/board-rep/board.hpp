@@ -41,14 +41,14 @@ class Board {
         Board* next_from_move(Move move);
         Square at(int x, int y);
         std::string to_string();
-        int ep_x = -1;
-        int ep_y = -1;
-        /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
-        int_fast8_t castle_status;
 
     private:
 
         Square** squares;
+        int ep_x = -1;
+        int ep_y = -1;
+        /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
+        int_fast8_t castle_status;
         int turns_until_draw = 50;
         std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn);
         Square** board_copy();
@@ -124,6 +124,9 @@ char piece_to_char(pieces piece, colors color){
                 return 'b';
             case pieces::PAWN:
                 return 'p';
+            default:{
+                return 'L';
+            }
         }
         break;
     case colors::WHITE:
@@ -140,10 +143,16 @@ char piece_to_char(pieces piece, colors color){
                 return 'B';
             case pieces::PAWN:
                 return 'P';
+            default:{
+                return 'W';
+            }
         }
         break;
     case colors::NONE:
         return '_';
+    default:{
+        return 'A';
+        }
     }
 }
 
