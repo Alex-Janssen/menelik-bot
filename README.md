@@ -1,5 +1,5 @@
 # menelik-bot
-C-Based Chess Bot
+C++ Based Chess Bot
 
 Uses simple min-max algorithm and simulates boardstate on its own end.
 
