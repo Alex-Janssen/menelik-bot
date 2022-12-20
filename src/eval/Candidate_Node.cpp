@@ -12,11 +12,11 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board)> eval, i
     this->board = board;
     this->eval = eval;
     this->parent = nullptr;
-    this->children = this->spawn_children();//Spawn children
     this->depth = 0;
     this->max_depth = max_depth;
     this->cur_board_val = eval(*(board));
     this->is_root = true;
+    this->children = this->spawn_children();//Spawn children
 }
 /// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
 /// @param board The boardstate whose next move is to be calculated
@@ -81,7 +81,7 @@ std::vector<Candidate_Node*> Candidate_Node::spawn_children(){
     std::vector<Candidate_Node*> to_return;
     //TODO iterate over all moves associated with this->board, create nodes, and then package in to_return.
     for(Move move : this->board->get_legal_moves()){
-        Board* associated_board = this->board->next_from_move(move);
+        Board* associated_board = &this->board->next_from_move(move);
         Candidate_Node new_child = Candidate_Node(associated_board, eval, this);
         to_return.push_back(&new_child);
     }
