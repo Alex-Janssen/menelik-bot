@@ -48,7 +48,41 @@ void Board::load_board(Board other){
 
 void Board::load_board(std::string& fen_string){
     std::string piece_string = fen_string.substr(0, fen_string.find(' '));
+    char active_color = fen_string[piece_string.length()+1];
+    std::string castling_availability = fen_string.substr(piece_string.length()+3, fen_string.substr(piece_string.length()+3).find(' '));
+    std::string en_passant_target = fen_string.substr(fen_string.substr(piece_string.length()+3).find(' ')+1, fen_string.substr(fen_string.substr(piece_string.length()+3).find(' ')+1).find(' '));
     load_board_pieces(piece_string);
+    auto contains = [] (std::string str, char target) -> bool {
+        if(str.find(target) == -1){
+            return false;
+        } else {
+            return true;
+        }
+    };
+    //set the turn
+    if(active_color == 'w'){
+        this->turn = colors::WHITE;
+    } else {
+        this->turn = colors::BLACK;
+    }
+    //set castling bits
+    if (castling_availability == "-"){
+        this->castle_status = 0b0000;
+    } else {
+        bool Wk = contains(castling_availability, 'K');
+        bool Wq = contains(castling_availability, 'Q');
+        bool Bk = contains(castling_availability, 'k');
+        bool Bq = contains(castling_availability, 'q');
+        this->castle_status = 0b1000 * Wq + 0b0100 * Wk + 0b0010 * Bq + 0b0001 * Bk;
+    }
+    //set en passant
+    if (en_passant_target == "-"){
+        this->ep_x = -1;
+        this->ep_y = -1;
+    } else {
+        this->ep_x = en_passant_target[0]-'a';
+        this->ep_y = std::stoi(en_passant_target.substr(1))-1;
+    }
 }
 
 void Board::load_board_pieces(std::string& fen_string){
