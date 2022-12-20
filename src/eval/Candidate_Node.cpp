@@ -2,6 +2,7 @@
 #include "Candidate_Node.hpp"
 #include <functional>
 #include <vector>
+#include <iostream>
 
 /// @brief Spawns a candidate node as a root value. Do not pass parent, but have to specify max-depth.
 /// @param board The boardstate whose next move is to be calculated
