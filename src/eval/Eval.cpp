@@ -9,12 +9,7 @@
 #include "../board-rep/Board.hpp"
 #include <map>
 
-Eval::Eval(Board to_evaluate){
-    this->to_evaluate = to_evaluate;
-    this->piece_vals = Load_Params::read_piece_vals();
-}
-
-float Eval::evaluate_board_naive(){
+float Eval::evaluate_board_naive(Board to_evaluate, std::map<char, int> piece_vals){
     float eval_result;
     for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){
