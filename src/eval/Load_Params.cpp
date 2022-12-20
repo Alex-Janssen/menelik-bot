@@ -11,7 +11,7 @@ using std::ifstream;
 std::map<char, int> Load_Params::read_piece_vals(){
     std::fstream p_vals;
     std::map<char, int> to_return;
-    p_vals.open("./params/piece_vals.txt",std::ios::in); //read file
+    p_vals.open("src/eval/params/piece_vals.txt",std::ios::in); //read file
     if (p_vals.is_open()){ //if open
         std::string to_parse;
         while(getline(p_vals, to_parse)){ //read data from file object and put it into string.
@@ -23,11 +23,12 @@ std::map<char, int> Load_Params::read_piece_vals(){
     }
     return to_return;
 }
-
+/// @brief Takes file called eval_params.txt and parses it. Must be of format "param":int
+/// @return Map from string to int.
 std::map<std::string, int> Load_Params::read_eval_params(){
     std::fstream p_vals;
     std::map<std::string, int> to_return;
-    p_vals.open("./params/eval_params.txt",std::ios::in); //read file
+    p_vals.open("src/eval/params/eval_params.txt",std::ios::in); //read file
     if (p_vals.is_open()){ //if open
         std::string to_parse;
         while(getline(p_vals, to_parse)){ //read data from file object and put it into string.
