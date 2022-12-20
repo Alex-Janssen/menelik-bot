@@ -17,6 +17,7 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board*)> eval, 
     this->is_root = true;
     this->cur_board_val = eval(board);
     this->children = this->spawn_children();//Spawn children
+    std::cout<<"Children spawned."<<"\n";
 }
 /// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
 /// @param board The boardstate whose next move is to be calculated
@@ -97,60 +98,45 @@ std::vector<Candidate_Node*> Candidate_Node::spawn_children(){
 }
 /// @brief Alters the board val to the best/worst of its children.
 void Candidate_Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT WE NEED TO BE CAREFUL BECAUSE NEW NODES OF GREATER DEPTH WILL AFFECT RESULTS. FOR NOW, DESTROY THE CAND-NODES AND REGENERATE AFTER A MOVE IS MADE.
-    int prospective_val;
     Candidate_Node* favorite;
-    if(abs(this->cur_board_val)>9000){//A king has been taken, don't recurse.
-        this->prospective_board_val = cur_board_val;
-        this->favorite_child = nullptr; 
+    int prospective_val;
+    if(abs(this->cur_board_val)>900){//A king has been taken, don't recurse.
+        prospective_val = cur_board_val;
+        favorite = nullptr; 
     }
     else{
-        if(this->is_root){//Root tries to max children
-            int max_option = -99999999999;//Arbitrarily small
-            Candidate_Node* best_move = nullptr;
-            for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
-                float possible = cand->get_prospective_board_val();
-                if(possible > max_option){
-                    max_option = possible;
-                    best_move = cand;
-                }
-            }
-            prospective_val = max_option;
-            favorite = best_move;
-        }
-        else{//Inner nodes minimize children.
-            if(this-> depth < this->max_depth){//We recurse again
-                if(this-> depth % 2 == 1){
-                    int min_option = 99999999999;//Arbitrarily large
-                    Candidate_Node* best_opp_move = nullptr;
-                    for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
-                        if(cand->get_prospective_board_val() < min_option){
-                            min_option = cand->get_prospective_board_val();
-                            best_opp_move = cand;
-                        }
+        if(this-> depth < this->max_depth){//We recurse again
+            if(this-> depth % 2 == 1){
+                int min_option = 99999999999;//Arbitrarily large
+                Candidate_Node* best_opp_move = nullptr;
+                for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
+                    if(cand->get_prospective_board_val() < min_option){
+                        min_option = cand->get_prospective_board_val();
+                        best_opp_move = cand;
                     }
-                    prospective_val = min_option;
-                    favorite = best_opp_move;
                 }
-                else{
-                    int max_option = -99999999999;//Arbitrarily small
-                    Candidate_Node* best_move = nullptr;
-                    for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
-                        if(cand->get_prospective_board_val() > max_option){
-                            max_option = cand->get_prospective_board_val();
-                            best_move = cand;
-                        }
-                    }
-                    prospective_val = max_option;
-                    favorite = best_move;                    
-                }
+                prospective_val = min_option;
+                favorite = best_opp_move;
             }
             else{
-                prospective_val = this->get_cur_board_val();
-                favorite_child = nullptr;
+                int max_option = -99999999999;//Arbitrarily small
+                Candidate_Node* best_move = nullptr;
+                for(Candidate_Node* cand : this->children){//Iterate over every child board, checking if its prospective has been calced. If it has and it is larger, then replace the max with it.
+                    if(cand->get_prospective_board_val() > max_option){
+                        max_option = cand->get_prospective_board_val();
+                        best_move = cand;
+                    }
+                }
+                prospective_val = max_option;
+                favorite = best_move;
             }
         }
-        this->prospective_board_val = prospective_val;
-        this->favorite_child = favorite;
+        else{
+            prospective_val = this->get_cur_board_val();
+            favorite_child = nullptr;
+        }
     }
+    this->prospective_board_val = prospective_val;
+    this->favorite_child = favorite;
     this->prospective_val_calculated = true;
 }

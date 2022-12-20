@@ -16,7 +16,7 @@ void identify_move(Board board){
 
 int main(){
     auto joker = Board();
-    std::string jokerfen = "7k/1R6/PB3p2/8/6n1/5pp1/3n4/2K5 w - - 0 1";
+    std::string jokerfen = "rnb1k1nr/1pp2ppp/3p1q2/p1b1p3/P7/8/1PPPPPPP/RNBQKBNR w Kkq - 0 6";
     joker.load_board(jokerfen);
     identify_move(joker);
 }
