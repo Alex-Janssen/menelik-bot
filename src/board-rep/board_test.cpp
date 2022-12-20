@@ -51,9 +51,6 @@ int main() {
 		cout << '(' << (char) ('a'+ move.end_x) << move.end_y+1 << ')';
 		cout << endl;
 	}
-
-
-
 	return 0;
 }
 
