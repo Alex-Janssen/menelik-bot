@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 
+#include "Eval_Functions.cpp"
+/*
 /// @brief Spawns a candidate node as a root value. Do not pass parent, but have to specify max-depth.
 /// @param board The boardstate whose next move is to be calculated
 /// @param eval An evaluation function which evaluates the board value
@@ -140,3 +142,6 @@ void Candidate_Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT
     this->favorite_child = favorite;
     this->prospective_val_calculated = true;
 }
+
+
+*/
