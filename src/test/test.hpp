@@ -9,9 +9,11 @@ class Test{
     public:
         Test();
         bool mate_in_one_1();
+        bool mate_in_one_2();
         bool fork_king_knight_1();
         bool mate_in_three_1();
         bool mate_in_three_2();
+        ~Test();
 
 };
 
