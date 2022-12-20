@@ -15,12 +15,7 @@ Candidate_Node::Candidate_Node(Board* board, std::function<float(Board*)> eval, 
     this->depth = 0;
     this->max_depth = max_depth;
     this->is_root = true;
-<<<<<<< HEAD
-    this->cur_board_val = eval(*(board));
-=======
     this->cur_board_val = eval(board);
-    this->is_root = true;
->>>>>>> df35e08aea4faef6231705523a3c2e706f258931
     this->children = this->spawn_children();//Spawn children
 }
 /// @brief Spawns a candidate node which is an inner node. Must specify a parent pointer.
