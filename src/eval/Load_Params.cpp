@@ -22,6 +22,9 @@ std::map<char, int> Load_Params::read_piece_vals(){
         }
         p_vals.close(); //close the file object.
     }
+    else{
+        std::cout << "Could not open piece_vals" << std::endl;
+    }
     return to_return;
 }
 /// @brief Takes file called eval_params.txt and parses it. Must be of format "param":int
@@ -39,6 +42,9 @@ std::map<std::string, int> Load_Params::read_eval_params(){
             to_return.emplace(param_name, stoi(val));//Insert character at piece line
         }
         p_vals.close(); //close the file object.
+    }
+    else{
+       std::cout << "Could not open eval_params" << std::endl;
     }
     return to_return;
 }
