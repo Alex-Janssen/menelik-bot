@@ -73,11 +73,6 @@ int main () {
     long int mate_in_one_2_end = time(NULL);
     fingerprint<<write_time(mate_in_one_2_start, mate_in_one_2_end, "Mate in one 2");
 
-    long int capture_1_start = time(NULL);
-    fingerprint<<write_result(test.capture_1(), "Fork Capture 1");
-    long int capture_1_end = time(NULL);
-    fingerprint<<write_time(capture_1_start, capture_1_end, "Mate in one 2");
-
     long int fork_kn_1_start = time(NULL);
     fingerprint<<write_result(test.fork_king_knight_1(), "King-rook knight fork 1");
     long int fork_kn_1_end = time(NULL);
