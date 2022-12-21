@@ -24,7 +24,7 @@ bool Test::mate_in_one_1 (){
 bool Test::mate_in_one_2 (){
     std::string fen = "rnb1k2r/pppppppp/7n/6B1/3q1b2/4Q3/PPPPPPPP/RN2KBNR w KQkq - 0 1"; //queen checkmate
     Board* result = algorithm->get_best_board(fen);
-    return piece_enum_to_name(result->at(5,6).piece) == "QUEEN" && color_enum_to_name(result->at(5,6).color)=="WHITE";
+    return piece_enum_to_name(result->at(4,6).piece) == "QUEEN" && color_enum_to_name(result->at(4,6).color)=="WHITE";
 }
 
 
@@ -32,6 +32,18 @@ bool Test::fork_king_knight_1 (){
     std::string fen = "rnb1k1nr/2pppppp/8/3N2qb/p7/1P6/P1PPPPPP/RNBQKB1R w KQkq - 0 1"; //forksnight
     Board* result = algorithm->get_best_board(fen);
     return piece_enum_to_name(result->at(2,6).piece) == "KNIGHT" && color_enum_to_name(result->at(5,6).color)=="WHITE";
+}
+
+bool Test::fork_king_knight_2 (){
+    std::string fen = "2q1k3/8/n7/8/2N5/3B4/2PPPPPP/4K3 w - - 0 1"; //forkknight
+    Board* result = algorithm->get_best_board(fen);
+    return piece_enum_to_name(result->at(3,5).piece) == "KNIGHT" && color_enum_to_name(result->at(3,5).color)=="WHITE";
+}
+
+bool Test::mate_in_two_1 (){
+    std::string fen = "2bqkbn1/2pppp2/np2N3/r3P1p1/p2N2B1/5Q2/PPPPKPP1/RNB2r2 w - - 0 1"; //mate in 2
+    Board* result = algorithm->get_best_board(fen);
+    return piece_enum_to_name(result->at(5,6).piece) == "QUEEN" && color_enum_to_name(result->at(5,6).color)=="WHITE";
 }
 
 bool Test::mate_in_three_1 (){
@@ -51,28 +63,45 @@ int main () {
     std::ofstream fingerprint;
     fingerprint.open ("fingerprint.txt");
 
-    int mate_in_one_1_start = time(NULL);
+    long int mate_in_one_1_start = time(NULL);
     fingerprint<<write_result(test.mate_in_one_1(), "Mate in one 1");
-    int mate_in_one_1_end = time(NULL);
+    long int mate_in_one_1_end = time(NULL);
     fingerprint<<write_time(mate_in_one_1_start, mate_in_one_1_end, "Mate in one 1");
 
-    int fork_kn_1_start = time(NULL);
+    long int mate_in_one_2_start = time(NULL);
+    fingerprint<<write_result(test.mate_in_one_2(), "Mate in one 2");
+    long int mate_in_one_2_end = time(NULL);
+    fingerprint<<write_time(mate_in_one_2_start, mate_in_one_2_end, "Mate in one 2");
+
+    long int capture_1_start = time(NULL);
+    fingerprint<<write_result(test.capture_1(), "Fork Capture 1");
+    long int capture_1_end = time(NULL);
+    fingerprint<<write_time(capture_1_start, capture_1_end, "Mate in one 2");
+
+    long int fork_kn_1_start = time(NULL);
     fingerprint<<write_result(test.fork_king_knight_1(), "King-rook knight fork 1");
-    int fork_kn_1_end = time(NULL);
+    long int fork_kn_1_end = time(NULL);
     fingerprint<<write_time(fork_kn_1_start, fork_kn_1_end, "King-rook knight fork 1");
 
-    int mate_in_three_1_start = time(NULL);
+    long int fork_kn_2_start = time(NULL);
+    fingerprint<<write_result(test.fork_king_knight_2(), "King-rook knight fork 2");
+    long int fork_kn_2_end = time(NULL);
+    fingerprint<<write_time(fork_kn_2_start, fork_kn_2_end, "King-rook knight fork 2");
+
+    long int mate_in_two_1_start = time(NULL);
+    fingerprint<<write_result(test.mate_in_two_1(), "Mate in Two 1");
+    long int mate_in_two_1_end = time(NULL);
+    fingerprint<<write_time(mate_in_two_1_start, mate_in_two_1_end, "Mate in Two 1");
+
+    long int mate_in_three_1_start = time(NULL);
     fingerprint<<write_result(test.mate_in_three_1(), "Mate in Three 1");
-    int mate_in_three__1_end = time(NULL);
+    long int mate_in_three__1_end = time(NULL);
     fingerprint<<write_time(mate_in_three_1_start, mate_in_three__1_end, "Mate in Three 1");
 
-    int mate_in_three_2_start = time(NULL);
+    long int mate_in_three_2_start = time(NULL);
     fingerprint<<write_result(test.mate_in_three_2(), "Mate in Three 2 (promotion)");
-    int mate_in_three__2_end = time(NULL);
+    long int mate_in_three__2_end = time(NULL);
     fingerprint<<write_time(mate_in_three_2_start, mate_in_three__2_end, "Mate in Three 2 (promotion)");
-
-    fingerprint.close();
-    return 0;
 
     fingerprint.close();
     return 0;
