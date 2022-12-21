@@ -58,18 +58,6 @@ bool Test::mate_in_three_2 (){
     return piece_enum_to_name(result->at(5,6).piece) == "PAWN" && color_enum_to_name(result->at(5,6).color)=="WHITE";
 }
 
-
-
-std::string write_result(bool res, std::string name){
-    if(res){
-        return "Passed test " +name; 
-    }
-    return "Failed test "+name;
-}
-std::string write_time(int start, int end, std::string name){
-    return "Test " + name + ": " + std::to_string(end-start) + " seconds";
-}
-
 int main () {
     Test test = Test();
     std::ofstream fingerprint;
