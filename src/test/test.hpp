@@ -10,7 +10,6 @@ class Test{
         Test();
         bool mate_in_one_1();
         bool mate_in_one_2();
-        bool capture_1();
         bool fork_king_knight_1();
         bool fork_king_knight_2();
         bool mate_in_two_1();
