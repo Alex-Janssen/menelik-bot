@@ -17,10 +17,11 @@ struct Square {
 };
 
 struct Move {
-    int start_x;
-    int start_y;
-    int end_x;
-    int end_y;
+    int start_row;
+    int start_col;
+    int end_row;
+    int end_col;
+    int_fast8_t castle_change = 0b1111;
     pieces promote_target = pieces::NONE;
 };
 
@@ -30,27 +31,27 @@ class Board {
 
         colors turn = colors::NONE;
         colors victory = colors::NONE;
+        int ep_row = -1;
+        int ep_col = -1;
+        /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
+        int_fast8_t castle_status;
         Board();
-        Board(Square** squares);
-        Board(Square** squares, colors turn, unsigned int castle_status);
+        Board(Square* squares);
+        Board(Square* squares, colors turn, unsigned int castle_status);
         ~Board();
         void load_board(Board other);
         void load_board(std::string& fen_string);
         std::vector<Move> get_legal_moves();
         Board* next_from_move(Move move);
-        Square at(int x, int y);
+        Square at(int row, int col);
         std::string to_string();
 
     private:
 
-        Square** squares;
-        int ep_x = -1;
-        int ep_y = -1;
-        /// @brief castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
-        int_fast8_t castle_status;
+        Square* squares;
         int turns_until_draw = 50;
         std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn);
-        Square** board_copy();
+        Square* board_copy();
         void load_board_pieces(std::string& fen_string);
         bool any_piece_here(int pos_x, int pos_y);
         bool ally_piece_here(int pos_x, int pos_y, colors team);

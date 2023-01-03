@@ -1,4 +1,4 @@
-g++ src\test\test.cpp -w -W -o src\test\test.exe
+g++ src\test\test.cpp -w -W -Ofast -o src\test\test.exe
 
 
 .\src\test\test.exe
