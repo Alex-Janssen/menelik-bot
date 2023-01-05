@@ -19,14 +19,14 @@ bool Test::mate_in_one_1 (){
     std::string fen = "r1bqk1nr/pppp1ppp/2n5/4p3/1bB5/4PQ2/PPPP1PPP/RNB1K1NR w KQkq - 0 1"; //scholar's mate
     Board* result = algorithm->get_best_board(fen);
     std::cout << "board state is: " << std::endl << result->to_string();
-    return piece_enum_to_name(result->at(6,5).piece) == "QUEEN" && color_enum_to_name(result->at(6,5).color)=="WHITE";
+    return result->at(6,5).piece == pieces::QUEEN && result->at(6,5).color==colors::WHITE;
 }
 
 bool Test::mate_in_one_2 (){
     std::string fen = "rnb1k2r/pppppppp/7n/6B1/3q1b2/4Q3/PPPPPPPP/RN2KBNR w KQkq - 0 1"; //queen checkmate
     Board* result = algorithm->get_best_board(fen);
     std::cout << "board state is: " << std::endl << result->to_string();
-    return piece_enum_to_name(result->at(6,4).piece) == "QUEEN" && color_enum_to_name(result->at(6,4).color)=="WHITE";
+    return result->at(6,4).piece == pieces::QUEEN && result->at(6,4).color==colors::WHITE;
 }
 
 
@@ -34,14 +34,14 @@ bool Test::fork_king_knight_1 (){
     std::string fen = "rnb1k1nr/2pppppp/8/3N2qb/p7/1P6/P1PPPPPP/RNBQKB1R w KQkq - 0 1"; //forksnight
     Board* result = algorithm->get_best_board(fen);
     std::cout << "board state is: " << std::endl << result->to_string();
-    return piece_enum_to_name(result->at(6,2).piece) == "KNIGHT" && color_enum_to_name(result->at(6,2).color)=="WHITE";
+    return result->at(6,2).piece == pieces::KNIGHT && result->at(6,2).color==colors::WHITE;
 }
 
 bool Test::fork_king_knight_2 (){
     std::string fen = "2q1k3/8/n7/8/2N5/3B4/2PPPPPP/4K3 w - - 0 1"; //forkknight
     Board* result = algorithm->get_best_board(fen);
     std::cout << "board state is: " << std::endl << result->to_string();
-    return piece_enum_to_name(result->at(5,3).piece) == "KNIGHT" && color_enum_to_name(result->at(5,3).color)=="WHITE";
+    return result->at(5,3).piece == pieces::KNIGHT && result->at(5,3).color==colors::WHITE;
 }
 
 bool Test::mate_in_two_1 (){

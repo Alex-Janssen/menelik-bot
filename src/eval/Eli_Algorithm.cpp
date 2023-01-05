@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-//#include <algorithm>
+#include <algorithm>
 
 
 Eli_Algorithm::Eli_Algorithm(){
@@ -34,12 +34,14 @@ float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, b
     if(maximizing_player){
         float max_eval = -99999999;
         std::vector<Board*> children = spawn_children(board);
+        //delete
         for(Board* child : children){
             eval = minimax(child,depth-1,alpha,beta,false);
             max_eval = std::max(max_eval,eval);
             alpha = std::max(alpha,eval);
             if(beta <= alpha) {break;}
         }
+        std::for_each(children.begin(), children.end(), delete_children);
         return max_eval;
     } else {
         float min_eval = 99999999;
@@ -50,6 +52,7 @@ float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, b
             beta = std::min(beta,eval);
             if(beta <= alpha) {break;}
         }
+        std::for_each(children.begin(), children.end(), delete_children);
         return min_eval;
     }
 }

@@ -20,6 +20,9 @@ class Eli_Algorithm : public Eval{
         ~Eli_Algorithm();
     private:
         std::vector<Board*> spawn_children(Board* board);
+        static void delete_children(Board* board){
+            delete board;
+        }
         float minimax(Board* board, int depth, float alpha, float beta, bool maximizing_player);
         void identify_best_move(Board board);
 };
