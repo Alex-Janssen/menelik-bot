@@ -39,7 +39,6 @@ float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, b
     if(maximizing_player){
         float max_eval = -99999999;
         std::vector<Board*> children = spawn_children(board);
-        //delete
         for(Board* child : children){
             eval = minimax(child,depth-1,alpha,beta,false);
             max_eval = std::max(max_eval,eval);

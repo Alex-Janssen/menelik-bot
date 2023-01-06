@@ -10,6 +10,7 @@
 /// @param board The boardstate whose next move is to be calculated
 /// @param eval An evaluation function which evaluates the board value
 /// @param max_depth Maximum depth of recursive generation of children
+*/
 Node::Node(Board* board, std::function<float(Board*)> eval, int max_depth){
     this->board = board;
     this->eval = eval;
@@ -144,4 +145,3 @@ void Node::set_prospective_board_val(){//THIS HAS INBUILT CACHING, BUT WE NEED T
 }
 
 
-*/

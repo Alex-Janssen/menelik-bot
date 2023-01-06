@@ -1,8 +1,8 @@
 //
 // Created by ajans on 19.12.2022.
 //
-#ifndef MENELIK_CAND_NODE
-#define MENELIK_CAND_NODE
+#ifndef MENELIK_NODE
+#define MENELIK_NODE
 
 #include "../board-rep/Board.hpp"
 #include <functional>
@@ -37,4 +37,4 @@ class Node {
 
 };
 
-#endif //MENELIK_CAND_NODE
+#endif //MENELIK_NODE
