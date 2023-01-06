@@ -1,7 +1,3 @@
-set name1=first_test
+g++ src\Menelik_Main.cpp -w -W -Ofast -o menelik
 
-
-g++ src\eval\Eval_Operator.cpp -w -W -o %name1%
-
-
-%name1%.exe
+menelik
