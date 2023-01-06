@@ -232,7 +232,7 @@ Board* Board::next_from_move(Move move){
     }
     
     //rook move check for castling rights update
-    if(start_piece == pieces::ROOK ){
+    if(move.castle_change < 0b10000 && start_piece == pieces::ROOK ){
         //woooooo bitwise operand time
         bool K = move.start_col==7;
         bool W = move.start_row==0;
@@ -299,12 +299,14 @@ std::vector<Move> Board::get_legal_moves(){
 
 void Board::recalc_legal_moves(){
 
+
     //iterate over all pieces
     for(int row = 0; row < 8; row++){
         for (int col = 0; col < 8; col++){
             //get the type of the piece being observed
             pieces this_piece_type;
             this_piece_type = this->squares[8*row + col].piece;
+
             colors this_piece_color;
             this_piece_color = this->squares[8*row + col].color;
             //get the moves this piece can make
@@ -321,6 +323,7 @@ void Board::recalc_legal_moves(){
         }
     }
 
+    std::cout << "bye" << std::endl;
 
 }
 
@@ -555,27 +558,32 @@ std::vector<Move> Board::get_moves_from_position(int row, int col, pieces piece_
 
             case pieces::PAWN:{
                 out = get_pawn_moves_from_pos(row,col,turn);
+                break;
             }
 
             case pieces::ROOK:{
                 out = get_rook_moves_from_pos(row,col,turn);
+                break;
             }
 
             case pieces::KNIGHT:{
                 out = get_knight_moves_from_pos(row,col,turn);
+                break;
             }
 
             case pieces::BISHOP:{
                 out = get_bishop_moves_from_pos(row,col,turn);
-                
+                break;
             }
 
             case pieces::QUEEN:{
                 out = get_queen_moves_from_pos(row, col, turn);
+                break;
             }
 
             case pieces::KING:{
                 out = get_king_moves_from_pos(row, col, turn);
+                break;
             }
             default:{
                 std::cout << "doing undefined things" << std::endl;

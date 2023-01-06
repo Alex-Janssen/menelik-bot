@@ -175,5 +175,29 @@ char piece_to_char(pieces piece, colors color){
     }
 }
 
+Move move_from_text(std::string& move_text){
+
+    int start_col = move_text[0] - 'a';
+    int start_row = move_text[1] - '1';
+    int end_col = move_text[2] - 'a';
+    int end_row = move_text[3] - '1';
+    pieces promote_target;
+
+    switch (std::tolower(move_text[4])){
+        case 'r':{promote_target = pieces::ROOK; break;}
+        case 'n':{promote_target = pieces::KNIGHT; break;}
+        case 'b':{promote_target = pieces::BISHOP; break;}
+        case 'q':{promote_target = pieces::QUEEN; break;}
+        default:{promote_target = pieces::NONE; break;}
+    }
+
+    Move to_move = Move {.start_row=start_row, .start_col=start_col, 
+                    .end_row=end_row, .end_col=end_col,
+                    .castle_change=0b11111, .promote_target=promote_target};
+    
+    return to_move;
+
+}
+
 
 #endif //MENELIK_BOARD_H

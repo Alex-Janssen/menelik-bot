@@ -20,8 +20,7 @@ int main(int argc, char *argv[]) {
     else{
         Eli_Algorithm* algo = new  Eli_Algorithm();
         Board* current_board = new Board();
-        //std::string default_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        std::string default_fen = "3k1bnr/3P3p/8/3R2p1/p1P5/P3p1P1/5PKP/8 w - - 0 1";
+        std::string default_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         current_board->load_board(default_fen);
 
         std::cout << "Current board state is:\n" << current_board->to_string() << std::endl;
@@ -32,24 +31,7 @@ int main(int argc, char *argv[]) {
             std::cin >> opponent_move_str;
             std::cout << std::endl;
 
-            int start_col = opponent_move_str[0] - 'a';
-            int start_row = opponent_move_str[1] - '1';
-            int end_col = opponent_move_str[2] - 'a';
-            int end_row = opponent_move_str[3] - '1';
-            pieces promote_target;
-
-            switch (std::tolower(opponent_move_str[4])){
-                case 'r':{promote_target = pieces::ROOK; break;}
-                case 'n':{promote_target = pieces::KNIGHT; break;}
-                case 'b':{promote_target = pieces::BISHOP; break;}
-                case 'q':{promote_target = pieces::QUEEN; break;}
-                default:{promote_target = pieces::NONE; break;}
-            }
-
-            Move to_move = Move {.start_row=start_row, .start_col=start_col, 
-                            .end_row=end_row, .end_col=end_col,
-                            .castle_change=0b1111, .promote_target=promote_target};
-
+            Move to_move = move_from_text(opponent_move_str);
             
             std::cout << "You played: " <<
                  (char)(to_move.start_col+'a') <<
