@@ -15,7 +15,6 @@ Board::Board(){
     this->turn = colors::NONE;
     //initialize to all true
     this->castle_status = 0b1111;
-    this->turns_until_draw = 50;
 }
 
 Board::Board(Square* squares){
@@ -39,11 +38,6 @@ Board::~Board() {
 
 Square Board::at(int row, int col){
     return squares[8*row+col];
-}
-
-void Board::load_board(Board other){
-    this->squares = other.squares;
-    this->turn = other.turn;
 }
 
 void Board::load_board(std::string& fen_string){
@@ -85,6 +79,8 @@ void Board::load_board(std::string& fen_string){
         this->ep_row = std::stoi(en_passant_target.substr(1))-1;
         this->ep_col = en_passant_target[0]-'a';
     }
+
+    recalc_legal_moves();
 }
 
 void Board::load_board_pieces(std::string& fen_string){
@@ -301,6 +297,33 @@ std::vector<Move> Board::get_legal_moves(){
     return legal_moves;
 }
 
+void Board::recalc_legal_moves(){
+
+    //iterate over all pieces
+    for(int row = 0; row < 8; row++){
+        for (int col = 0; col < 8; col++){
+            //get the type of the piece being observed
+            pieces this_piece_type;
+            this_piece_type = this->squares[8*row + col].piece;
+            colors this_piece_color;
+            this_piece_color = this->squares[8*row + col].color;
+            //get the moves this piece can make
+            std::vector<Move> moves_this_piece;
+            moves_this_piece = get_moves_from_position(row, col, this_piece_type, this_piece_color);
+            //this pieces moves are the moves_by_start of this piece's location
+            moves_by_start[8*row + col] = moves_this_piece;
+            //for each move here, add it to the moves_by_dest for that move's dest
+            for(Move move : moves_this_piece){
+                int dest_row = move.end_row;
+                int dest_col = move.end_col;
+                moves_by_dest[dest_row*8 + dest_col].push_back(move);
+            }
+        }
+    }
+
+
+}
+
 Square* Board::board_copy(){
     //create new squares for the copy
     Square* copy = new Square [64] ;
@@ -311,6 +334,218 @@ Square* Board::board_copy(){
     return copy;
 }
 
+//when I first started writing this, I did not think that pawns would suck the most to write.
+//considering the double-move, diagional for taking and forward for movement, en passant and promotion rules though it makes sense
+std::vector<Move> Board::get_pawn_moves_from_pos(int row, int col, colors turn){
+    std::vector<Move> out = std::vector<Move>();
+    int dest_col = col;
+    int dest_row;
+    if(turn == colors::WHITE){
+        dest_row = row+1;
+        //if the pawn has not moved from the start, add a double move possiblity if unobstructed
+        if(row == 1){
+            if(!any_piece_here(dest_row + 1, dest_col) && !any_piece_here(dest_row, dest_col)){
+                Move move = {.start_row = row, .start_col = col, .end_row = dest_row+1, .end_col = dest_col};
+                out.push_back(move);
+            }
+        }
+    }
+    //like white, but y-1 for the basic move and also for the double move
+    if(turn == colors::BLACK){
+        dest_row = row - 1;
+        //if the pawn has not moved from the start, add a double move possiblity if unobstructed
+        if(row == 6){
+            if(!any_piece_here(dest_row - 1, dest_col) && !any_piece_here(dest_row, dest_col)){
+                Move move = {.start_row = row, .start_col = col, .end_row = dest_row-1, .end_col = dest_col};
+                out.push_back(move);
+            }
+        }
+    }
+    //look in the 3 forward directions for movement
+    for(dest_col = col - 1; dest_col <= col + 1; dest_col++){
+        //bounds check
+        if(dest_col < 0 || dest_col > 7){
+            continue;
+        }
+        //only move if directly forwards (no change in x) and no piece there, or if diagonally (unequal x) and an enemy piece is there or en passant is there
+        if((dest_col == col && !any_piece_here(dest_row, dest_col)) || (col != dest_col && (enemy_piece_here(dest_row, dest_col, turn) || (ep_row == dest_row && ep_col == dest_col)))){
+            //if the move requires a promotion, add all possible promotions to the moves table
+            if((dest_row == 7 && turn == colors::WHITE) || ((dest_row == 0 && turn == colors::BLACK))){
+                Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                move.promote_target = pieces::QUEEN;
+                out.push_back(move);
+                move.promote_target = pieces::BISHOP;
+                out.push_back(move);
+                move.promote_target = pieces::KNIGHT;
+                out.push_back(move);
+                move.promote_target = pieces::ROOK;
+                out.push_back(move);
+            }
+            //no promotion, simple move
+            else{
+                Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                out.push_back(move);
+            }
+        }
+    }
+    return out;
+}
+
+std::vector<Move> Board::get_rook_moves_from_pos(int row, int col, colors turn){
+    std::vector<Move> out = std::vector<Move>();
+    //vertical moves
+    for(int delta_row = -1; delta_row <= 1; delta_row+=2){
+        Move move;
+        int dest_row = row + delta_row;
+        int dest_col = col;
+        while(dest_row >= 0 && dest_row <= 7){
+            if(any_piece_here(dest_row,dest_col)){
+                break;
+            }
+            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+            out.push_back(move);
+            dest_row += delta_row;
+        }
+        if (dest_row >= 0 && dest_row <= 7){
+            if(enemy_piece_here(dest_row,dest_col,turn)){
+                move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                out.push_back(move);
+            }
+        }
+    }
+    //horizontal moves
+    for(int delta_col = -1; delta_col <= 1; delta_col+=2){
+        Move move;
+        int dest_row = row;
+        int dest_col = col + delta_col;
+        while(dest_col >= 0 && dest_col <= 7){
+            if(any_piece_here(dest_row,dest_col)){
+                break;
+            }
+            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+            out.push_back(move);
+            dest_col += delta_col;
+        }
+        if (dest_col >= 0 && dest_col <= 7){
+            if(enemy_piece_here(dest_row,dest_col,turn)){
+                move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                out.push_back(move);
+            }
+        }
+    }
+    return out;
+}
+
+std::vector<Move> Board::get_bishop_moves_from_pos(int row, int col, colors turn){
+    std::vector<Move> out = std::vector<Move>();
+    //diagonals are thankfully straight lines but sideways
+    for(int delta_row = -1; delta_row <= 1; delta_row+=2){
+        for(int delta_col = -1; delta_col <= 1; delta_col+=2){
+            Move move;
+            int dest_row = row + delta_row;
+            int dest_col = col + delta_col;
+            while(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
+                if(any_piece_here(dest_row,dest_col)){
+                    break;
+                }
+                move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                out.push_back(move);
+                dest_row += delta_row;
+                dest_col += delta_col;
+            }
+            if(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
+                if(enemy_piece_here(dest_row,dest_col,turn)){
+                    move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                    out.push_back(move);
+                }
+            }
+        }
+    }
+    return out;
+}
+
+std::vector<Move> Board::get_knight_moves_from_pos(int row, int col, colors turn){
+    std::vector<Move> out = std::vector<Move>();
+    //just a silly little algorithm to look at all 8 possible horsey moves
+    for(int dest_row = row - 2; dest_row <= row + 2; dest_row += 1){
+        //boundary check x
+        if(dest_row < 0 || dest_row > 7 || dest_row == row){
+            continue;
+        }
+        //the funky part, isnt this neat?
+        int x_factor = abs(dest_row-row) % 2;
+        for(int dest_col = col - 1 - x_factor; dest_col <= col + 1 + x_factor; dest_col += 1 + x_factor){
+            //boundary check y
+            if(dest_col < 0 || dest_col > 7 || dest_col == col){
+                continue;
+            }
+            
+            //horsey only moves to where an ally is not
+            if(!ally_piece_here(dest_row,dest_col,turn)){
+                Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                out.push_back(move);
+            }
+
+        }
+    }
+    return out;
+}
+
+std::vector<Move> Board::get_king_moves_from_pos(int row, int col, colors turn){
+    std::vector<Move> out = std::vector<Move>();
+    //regular 3x3 movement block of king
+    for(int dest_row = row - 1; dest_row <= row + 1; dest_row ++){
+        //boundary check row
+        if(dest_row < 0 || dest_row > 7){
+            continue;
+        }
+        for(int dest_col = col - 1; dest_col <= col + 1; dest_col ++){
+            //boundary check col
+            if(dest_col < 0 || dest_col > 7){
+                continue;
+            }
+            //king can go to any square without an ally there 
+            //(no check consideration; that is more expensive than seeing victory by king capture; TODO?)
+            if(!ally_piece_here(dest_row, dest_col, turn)){
+                Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
+                out.push_back(move);
+            }
+        }
+    }
+
+    //castling options
+    bool can_castle_KS;
+    bool can_castle_QS;
+
+    can_castle_KS = (((turn == colors::WHITE) * 0b0100 + (turn == colors::BLACK) * 0b0001) & castle_status) != 0;
+    can_castle_QS = (((turn == colors::WHITE) * 0b1000 + (turn == colors::BLACK) * 0b0010) & castle_status) != 0;
+
+    if(can_castle_KS){
+        if(!any_piece_here(row, 5) && !any_piece_here(row, 6)){
+            Move move = {.start_row = row, .start_col = col, .end_row = row, .end_col = 6};
+            out.push_back(move);
+        }
+    }
+
+    if(can_castle_QS){
+        if(!any_piece_here(row, 1) && !any_piece_here(row, 2) && !any_piece_here(row, 3)){
+            Move move = {.start_row = row, .start_col = col, .end_row = row, .end_col = 2};
+            out.push_back(move);
+        }
+    }
+    return out;
+}
+
+
+std::vector<Move> Board::get_queen_moves_from_pos(int row, int col, colors turn){
+    std::vector<Move> out = std::vector<Move>();
+    std::vector<Move> bishopMoves = get_bishop_moves_from_pos(row,col,turn);
+    std::vector<Move> rookMoves = get_rook_moves_from_pos(row,col,turn);
+    out = bishopMoves;
+    out.insert(out.end(), rookMoves.begin(), rookMoves.end());
+    return out;
+}
+
 std::vector<Move> Board::get_moves_from_position(int row, int col, pieces piece_type, colors turn){
     std::vector<Move> out = std::vector<Move>();
     if(at(row,col).color == turn){
@@ -318,267 +553,34 @@ std::vector<Move> Board::get_moves_from_position(int row, int col, pieces piece_
             case pieces::NONE:
                 break;
 
-            //when I first started writing this, I did not think that pawns would suck the most to write.
-            //considering the double-move, diagional for taking and forward for movement, en passant and promotion rules though it makes sense
             case pieces::PAWN:{
-                int dest_col = col;
-                int dest_row;
-                if(turn == colors::WHITE){
-                    dest_row = row+1;
-                    //if the pawn has not moved from the start, add a double move possiblity if unobstructed
-                    if(row == 1){
-                        if(!any_piece_here(dest_row + 1, dest_col) && !any_piece_here(dest_row, dest_col)){
-                            Move move = {.start_row = row, .start_col = col, .end_row = dest_row+1, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-                //like white, but y-1 for the basic move and also for the double move
-                if(turn == colors::BLACK){
-                    dest_row = row - 1;
-                    //if the pawn has not moved from the start, add a double move possiblity if unobstructed
-                    if(row == 6){
-                        if(!any_piece_here(dest_row - 1, dest_col) && !any_piece_here(dest_row, dest_col)){
-                            Move move = {.start_row = row, .start_col = col, .end_row = dest_row-1, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-                //look in the 3 forward directions for movement
-                for(dest_col = col - 1; dest_col <= col + 1; dest_col++){
-                    //bounds check
-                    if(dest_col < 0 || dest_col > 7){
-                        continue;
-                    }
-                    //only move if directly forwards (no change in x) and no piece there, or if diagonally (unequal x) and an enemy piece is there or en passant is there
-                    if((dest_col == col && !any_piece_here(dest_row, dest_col)) || (col != dest_col && (enemy_piece_here(dest_row, dest_col, turn) || (ep_row == dest_row && ep_col == dest_col)))){
-                        //if the move requires a promotion, add all possible promotions to the moves table
-                        if((dest_row == 7 && turn == colors::WHITE) || ((dest_row == 0 && turn == colors::BLACK))){
-                            Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            move.promote_target = pieces::QUEEN;
-                            out.push_back(move);
-                            move.promote_target = pieces::BISHOP;
-                            out.push_back(move);
-                            move.promote_target = pieces::KNIGHT;
-                            out.push_back(move);
-                            move.promote_target = pieces::ROOK;
-                            out.push_back(move);
-                        }
-                        //no promotion, simple move
-                        else{
-                            Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-                break;}
+                out = get_pawn_moves_from_pos(row,col,turn);
+            }
 
             case pieces::ROOK:{
-                //vertical moves
-                for(int delta_row = -1; delta_row <= 1; delta_row+=2){
-                    Move move;
-                    int dest_row = row + delta_row;
-                    int dest_col = col;
-                    while(dest_row >= 0 && dest_row <= 7){
-                        if(any_piece_here(dest_row,dest_col)){
-                            break;
-                        }
-                        move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                        out.push_back(move);
-                        dest_row += delta_row;
-                    }
-                    if (dest_row >= 0 && dest_row <= 7){
-                        if(enemy_piece_here(dest_row,dest_col,turn)){
-                            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-                //horizontal moves
-                for(int delta_col = -1; delta_col <= 1; delta_col+=2){
-                    Move move;
-                    int dest_row = row;
-                    int dest_col = col + delta_col;
-                    while(dest_col >= 0 && dest_col <= 7){
-                        if(any_piece_here(dest_row,dest_col)){
-                            break;
-                        }
-                        move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                        out.push_back(move);
-                        dest_col += delta_col;
-                    }
-                    if (dest_col >= 0 && dest_col <= 7){
-                        if(enemy_piece_here(dest_row,dest_col,turn)){
-                            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-                break;}
+                out = get_rook_moves_from_pos(row,col,turn);
+            }
 
             case pieces::KNIGHT:{
-                //just a silly little algorithm to look at all 8 possible horsey moves
-                for(int dest_row = row - 2; dest_row <= row + 2; dest_row += 1){
-                    //boundary check x
-                    if(dest_row < 0 || dest_row > 7 || dest_row == row){
-                        continue;
-                    }
-                    //the funky part, isnt this neat?
-                    int x_factor = abs(dest_row-row) % 2;
-                    for(int dest_col = col - 1 - x_factor; dest_col <= col + 1 + x_factor; dest_col += 1 + x_factor){
-                        //boundary check y
-                        if(dest_col < 0 || dest_col > 7 || dest_col == col){
-                            continue;
-                        }
-                        
-                        //horsey only moves to where an ally is not
-                        if(!ally_piece_here(dest_row,dest_col,turn)){
-                            Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-
-                    }
-                }
-                break;}
+                out = get_knight_moves_from_pos(row,col,turn);
+            }
 
             case pieces::BISHOP:{
-                //diagonals are thankfully straight lines but sideways
-                for(int delta_row = -1; delta_row <= 1; delta_row+=2){
-                    for(int delta_col = -1; delta_col <= 1; delta_col+=2){
-                        Move move;
-                        int dest_row = row + delta_row;
-                        int dest_col = col + delta_col;
-                        while(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
-                            if(any_piece_here(dest_row,dest_col)){
-                                break;
-                            }
-                            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                            dest_row += delta_row;
-                            dest_col += delta_col;
-                        }
-                        if(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
-                            if(enemy_piece_here(dest_row,dest_col,turn)){
-                                move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                                out.push_back(move);
-                            }
-                        }
-                    }
-                }
-                break;}
+                out = get_bishop_moves_from_pos(row,col,turn);
+                
+            }
 
             case pieces::QUEEN:{
-                //vertical moves
-                for(int delta_row = -1; delta_row <= 1; delta_row+=2){
-                    Move move;
-                    int dest_row = row + delta_row;
-                    int dest_col = col;
-                    while(dest_row >= 0 && dest_row <= 7){
-                        if(any_piece_here(dest_row,dest_col)){
-                            break;
-                        }
-                        move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                        out.push_back(move);
-                        dest_row += delta_row;
-                    }
-                    if (dest_row >= 0 && dest_row <= 7){
-                        if(enemy_piece_here(dest_row,dest_col,turn)){
-                            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-                //horizontal moves
-                for(int delta_col = -1; delta_col <= 1; delta_col+=2){
-                    Move move;
-                    int dest_row = row;
-                    int dest_col = col + delta_col;
-                    while(dest_col >= 0 && dest_col <= 7){
-                        if(any_piece_here(dest_row,dest_col)){
-                            break;
-                        }
-                        move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                        out.push_back(move);
-                        dest_col += delta_col;
-                    }
-                    if (dest_col >= 0 && dest_col <= 7){
-                        if(enemy_piece_here(dest_row,dest_col,turn)){
-                            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-                //diagonals moves
-                for(int delta_row = -1; delta_row <= 1; delta_row+=2){
-                    for(int delta_col = -1; delta_col <= 1; delta_col+=2){
-                        Move move;
-                        int dest_row = row + delta_row;
-                        int dest_col = col + delta_col;
-                        while(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
-                            if(any_piece_here(dest_row,dest_col)){
-                                break;
-                            }
-                            move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                            dest_row += delta_row;
-                            dest_col += delta_col;
-                        }
-                        if(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
-                            if(enemy_piece_here(dest_row,dest_col,turn)){
-                                move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                                out.push_back(move);
-                            }
-                        }
-                    }
-                }
-                break;}
+                out = get_queen_moves_from_pos(row, col, turn);
+            }
 
             case pieces::KING:{
-                //regular 3x3 movement block of king
-                for(int dest_row = row - 1; dest_row <= row + 1; dest_row ++){
-                    //boundary check row
-                    if(dest_row < 0 || dest_row > 7){
-                        continue;
-                    }
-                    for(int dest_col = col - 1; dest_col <= col + 1; dest_col ++){
-                        //boundary check col
-                        if(dest_col < 0 || dest_col > 7){
-                            continue;
-                        }
-                        //king can go to any square without an ally there 
-                        //(no check consideration; that is more expensive than seeing victory by king capture; TODO?)
-                        if(!ally_piece_here(dest_row, dest_col, turn)){
-                            Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
-                            out.push_back(move);
-                        }
-                    }
-                }
-
-                //castling options
-                bool can_castle_KS;
-                bool can_castle_QS;
-
-                can_castle_KS = (((turn == colors::WHITE) * 0b0100 + (turn == colors::BLACK) * 0b0001) & castle_status) != 0;
-                can_castle_QS = (((turn == colors::WHITE) * 0b1000 + (turn == colors::BLACK) * 0b0010) & castle_status) != 0;
-
-                if(can_castle_KS){
-                    if(!any_piece_here(row, 5) && !any_piece_here(row, 6)){
-                        Move move = {.start_row = row, .start_col = col, .end_row = row, .end_col = 6};
-                        out.push_back(move);
-                    }
-                }
-
-                if(can_castle_QS){
-                    if(!any_piece_here(row, 1) && !any_piece_here(row, 2) && !any_piece_here(row, 3)){
-                        Move move = {.start_row = row, .start_col = col, .end_row = row, .end_col = 2};
-                        out.push_back(move);
-                    }
-                }
-
-                break;}
-                default:
-                    std::cout << "doing undefined things" << std::endl;
-                    break;
+                out = get_king_moves_from_pos(row, col, turn);
+            }
+            default:{
+                std::cout << "doing undefined things" << std::endl;
+                break;
+            }
         }
     }
     return out;

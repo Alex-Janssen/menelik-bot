@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
     else{
         Eli_Algorithm* algo = new  Eli_Algorithm();
         Board* current_board = new Board();
-        std::string default_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        //std::string default_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        std::string default_fen = "3k1bnr/3P3p/8/3R2p1/p1P5/P3p1P1/5PKP/8 w - - 0 1";
         current_board->load_board(default_fen);
 
         std::cout << "Current board state is:\n" << current_board->to_string() << std::endl;
