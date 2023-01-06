@@ -62,46 +62,6 @@ float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, b
     }
 }
 
-void Eli_Algorithm::identify_best_move(Board board){
-    float eval;
-    float best_eval;
-    int max_depth = (*eval_params.find("maxdepth")).second;
-    std::vector<Board*> moves = spawn_children(&board);
-    Board* best_board = moves[0];
-
-    if(board.turn==colors::WHITE){ //max
-        best_eval = -99999999;
-        auto it = moves.begin();
-        while(it != moves.end()){
-            eval = (minimax(*it,max_depth,-99999999,99999999,board.turn!=colors::WHITE));
-            if(best_eval < eval){
-                best_board = *it;
-                best_eval = eval;
-                it++;
-                if(eval > 103){break;}
-            }
-            else{
-                it = moves.erase(it);
-            }
-        }
-    } else { //min
-        best_eval = 99999999;
-        auto it = moves.begin();
-        while(it != moves.end()){
-            eval = (minimax(*it,max_depth,-99999999,99999999,board.turn!=colors::WHITE));
-            if(best_eval > eval){
-                best_board = *it;
-                best_eval = eval;
-                it++;
-                if(eval < -103){break;}
-            }
-            else{
-                it = moves.erase(it);
-            }
-        }
-    }
-    std::cout << best_board->to_string() << std::endl; //top move
-}
 
 Board* Eli_Algorithm::get_best_board(Board* board){
     float eval;
@@ -151,11 +111,49 @@ Board* Eli_Algorithm::get_best_board(std::string& fen_string){
 }
 
 Move Eli_Algorithm::get_best_move(Board* board){
-    //TODO
-    return Move();
+    float eval;
+    float best_eval;
+    int max_depth = (*eval_params.find("maxdepth")).second;
+    std::vector<Move> moves = board->get_legal_moves();
+    Move best_move = moves[0];
+
+    if(board->turn==colors::WHITE){ //max
+        best_eval = -99999999;
+        auto it = moves.begin();
+        while(it != moves.end()){
+            eval = (minimax(board->next_from_move(*it),max_depth,-99999999,99999999,board->turn!=colors::WHITE));
+            if(best_eval < eval){
+                best_move = *it;
+                best_eval = eval;
+                it++;
+                if(eval > 103){break;}
+            }
+            else{
+                it = moves.erase(it);
+            }
+        }
+    } else { //min
+        best_eval = 99999999;
+        auto it = moves.begin();
+        while(it != moves.end()){
+            eval = (minimax(board->next_from_move(*it),max_depth,-99999999,99999999,board->turn!=colors::WHITE));
+            if(best_eval > eval){
+                best_move = *it;
+                best_eval = eval;
+                it++;
+                if(eval < -103){break;}
+            }
+            else{
+                it = moves.erase(it);
+            }
+        }
+    }
+
+    return best_move;
 }
 
 Move Eli_Algorithm::get_best_move(std::string& fen_string){
-    //TODO
-    return Move();
+    Board* board = new Board();
+    board->load_board(fen_string);
+    return get_best_move(board);
 }
