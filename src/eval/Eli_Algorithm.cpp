@@ -1,4 +1,4 @@
-#include "Candidate_Node.hpp"
+#include "Node.hpp"
 #include "Load_Params.hpp"
 #include "Eli_Algorithm.hpp"
 #include "../board-rep/board.hpp"
