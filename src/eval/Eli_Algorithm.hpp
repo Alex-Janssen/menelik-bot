@@ -11,7 +11,7 @@
 class Eli_Algorithm : public Eval{
     const std::map<char, int> piece_vals = Load_Params::read_piece_vals(); 
     const std::map<std::string, int> eval_params = Load_Params::read_eval_params();
-    public: 
+    public:
         Board* get_best_board(Board* board);
         Move get_best_move(Board* board);
         Board* get_best_board(std::string& fen_string);
