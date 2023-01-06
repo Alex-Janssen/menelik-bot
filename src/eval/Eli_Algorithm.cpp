@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <random>
 
 
 Eli_Algorithm::Eli_Algorithm(){
@@ -19,6 +20,10 @@ Eli_Algorithm::~Eli_Algorithm(){
 std::vector<Board*> Eli_Algorithm::spawn_children(Board* board){ //generates a list of pointers to possible future boards
     std::vector<Board*> to_return;
     std::vector<Move> moves = board->get_legal_moves();
+    std::random_device dev; //shuffle moves to prevent combat waffling
+    std::mt19937 rng(dev());
+    std::shuffle(moves.begin(),moves.end(),rng);
+
     for(Move move : moves){
         Board* new_board = board->next_from_move(move);
         to_return.push_back(new_board);
@@ -27,7 +32,7 @@ std::vector<Board*> Eli_Algorithm::spawn_children(Board* board){ //generates a l
 }
 float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, bool maximizing_player){ //returns mininmal loss value
     float eval;
-    if(depth == 0 || abs(Eval_Functions::evaluate_board_naive(board, piece_vals)) > 39){
+    if(depth == 0 || abs(Eval_Functions::evaluate_board_naive(board, piece_vals)) > 100){
         return Eval_Functions::evaluate_board_naive(board, piece_vals)+depth*0.1;
     }
 
