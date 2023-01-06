@@ -23,7 +23,7 @@ bool Test::mate_in_one_1 (){
 }
 
 bool Test::mate_in_one_2 (){
-    std::string fen = "rnb1k2r/pppppppp/7n/6B1/3q1b2/4Q3/PPPPPPPP/RN2KBNR w KQkq - 0 1"; //queen checkmate
+    std::string fen = "rnb1k2r/pppppppp/7n/6B1/3q1b2/4Q3/PPPPPPPP/RN2KBNR w - - 1 1"; //queen checkmate //modified fen to prevent castling
     Board* result = algorithm->get_best_board(fen);
     std::cout << "board state is: " << std::endl << result->to_string();
     return result->at(6,4).piece == pieces::QUEEN && result->at(6,4).color==colors::WHITE;
@@ -55,14 +55,14 @@ bool Test::mate_in_three_1 (){
     std::string fen = "r5rk/5p1p/5R2/4B3/8/8/7P/7K w - - 0 1"; //mate in 3
     Board* result = algorithm->get_best_board(fen);
     std::cout << "board state is: " << std::endl << result->to_string();
-    return piece_enum_to_name(result->at(5,0).piece) == "ROOK" && color_enum_to_name(result->at(5,0).color)=="WHITE";
+    return result->at(5,0).piece == pieces::ROOK && result->at(5,0).color==colors::WHITE;
 }
 
 bool Test::mate_in_three_2 (){
-    std::string fen = "8/R7/4kPP1/3ppp2/3B1P2/1K1P1P2/8/8 w - - 0 1"; //mate in 3
+    std::string fen = "8/R7/4kPP1/3ppp2/3B1P2/1K1P1P2/8/8 w - - 0 1"; //8/R7/4kPP1/3ppp2/3B1P2/1K1P1P2/8/8 w - - 0 1 original
     Board* result = algorithm->get_best_board(fen);
     std::cout << "board state is: " << std::endl << result->to_string();
-    return piece_enum_to_name(result->at(6,5).piece) == "PAWN" && color_enum_to_name(result->at(6,5).color)=="WHITE";
+    return result->at(6,5).piece == pieces::PAWN && result->at(6,5).color==colors::WHITE;
 }
 
 int main () {
