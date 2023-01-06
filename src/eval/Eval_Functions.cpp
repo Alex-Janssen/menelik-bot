@@ -2,16 +2,19 @@
 // Created by ajans on 19.12.2022.
 //
 
-
 #include "Eval_Functions.hpp"
-#include "Load_Params.hpp"
+//TODO IMMEDIATELY FIGURE THIS OUT
+#ifndef MENELIK_LOADPARAM_CPP
+#define MENELIK_LOADPARAM_CPP
+#include "Load_Params.cpp"
+#endif
 #include "../board-rep/Board.hpp"
 #include <map>
-#include <iostream>
+//#include <iostream>
 
-float Eval_Functions::evaluate_board_naive(Board* to_evaluate){
-    std::map<char, int> piece_vals = Load_Params::read_piece_vals();//Do not read piece values every time.
-    float eval_result;
+
+float Eval_Functions::evaluate_board_naive(Board* to_evaluate, std::map<char, int> piece_vals){
+    float eval_result = 0;
     for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){
             Square check = to_evaluate->at(col, row);
