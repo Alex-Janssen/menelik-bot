@@ -50,14 +50,8 @@ class Board {
         Square at(int row, int col);
         std::string to_string();
 
-        std::vector<Move> moves_by_start [64] ; //list of all currently possible moves by start
-        std::vector<Move> moves_by_dest [64] ; //list of all currently possible moves by destination
-
-        std::vector<Pos> start_threat_removed_enemy [64] ; //starting squares which need moves recalculating upon an enemy's presence on a square
-        std::vector<Pos> start_threat_removed_ally [64] ; //starting squares which need moves recalculating upon an ally's presence on a square
-
-        std::vector<Pos> end_threat_removed_enemy [64] ; //ending squares which need moves recalculating upon an enemy's presence on a square
-        std::vector<Pos> end_threat_removed_ally [64] ; //ending squares which need moves recalculating upon an ally's presence on a square
+        int white_threat_at(int row, int col);
+        int black_threat_at(int row, int col);
 
     private:
 
@@ -75,6 +69,18 @@ class Board {
         bool any_piece_here(int pos_x, int pos_y);
         bool ally_piece_here(int pos_x, int pos_y, colors team);
         bool enemy_piece_here(int pos_x, int pos_y, colors team);
+
+        /// @brief list of all currently possible moves by start
+        std::vector<Move> moves_by_start [64];
+        /// @brief list of all currently possible moves by destination
+        std::vector<Move> moves_by_dest [64];
+
+
+        /// @brief starting squares which need moves recalculating iff an ally is present on a square
+        std::vector<Pos> blocking [64] ;
+
+        /// @brief ending squares which need moves recalculating iff an ally is present on a square
+        std::vector<Pos> end_threat_removed_ally [64] ;
 
 };
 

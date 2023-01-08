@@ -269,6 +269,17 @@ Board* Board::next_from_move(Move move){
         }
     }
 
+    //clear out moves_by_start for the starting pos
+    next_board->moves_by_start[8*move.start_row + move.start_col].clear();
+
+    //clear out moves_by_start for any piece blocked, add those starting positions to need_to_calc
+
+    //clear out moves_by_end for anything starting on the start square
+
+    //clear out moves_by_end for anything starting on a need_to_calc square
+
+    //
+
     //return the updated board
     return next_board;
 }
@@ -322,8 +333,6 @@ void Board::recalc_legal_moves(){
             }
         }
     }
-
-    std::cout << "bye" << std::endl;
 
 }
 
