@@ -153,18 +153,12 @@ Board* Board::next_from_move(Move move){
     }
 
     //make a copy of the board to update with the move (and retrun refernce to)
-    next_squares = board_copy();
+    next_squares = squares_copy();
     next_castle_status = this->castle_status & move.castle_change;
 
     //get references to the start and end squares
     Square* end_square = &next_squares[8*move.end_row + move.end_col];
     Square* start_square = &next_squares[8*move.start_row + move.start_col];
-
-    //if the move is an enemy king capture, set victory
-    //(this will count stalemates and checkmates both as a win, TODO?)
-    if(end_square->piece == pieces::KING){
-        next_victory = this->turn;
-    }
 
     //store values of the piece information of the starting square
     colors start_color = start_square->color;
@@ -255,7 +249,7 @@ Board* Board::next_from_move(Move move){
 
     Board* next_board = new Board(next_squares, next_turn, next_castle_status);
 
-    next_board->victory = next_victory;
+    next_board->set_threat_data(moves_by_start, moves_by_dest, blocking);
     
     //if the move is a pawn first move double, add the en passant possibility
     if(start_piece == pieces::PAWN){
@@ -269,16 +263,99 @@ Board* Board::next_from_move(Move move){
         }
     }
 
+    //deal with threat and possible move stuff
+
     //clear out moves_by_start for the starting pos
     next_board->moves_by_start[8*move.start_row + move.start_col].clear();
 
-    //clear out moves_by_start for any piece blocked, add those starting positions to need_to_calc
+    //remove from moves_by_dest all the moves which start on the start square (ending locations found by looking at moves from the start square)
+    for(Move start_move : moves_by_start[8*move.start_row + move.start_col]){
+        std::vector<Move>* remove_from_vec = &(next_board->moves_by_dest[8*start_move.end_row + start_move.end_col]);
+        remove(remove_from_vec->begin(), remove_from_vec->end(), start_move);
+    }
 
-    //clear out moves_by_end for anything starting on the start square
+    //clear out moves_by_start for any piece previously blocked
+    std::vector<Pos> unblocked = blocking[8*move.start_row + move.start_col];
+    for(Pos loc : unblocked){
+        next_board->moves_by_start[8*loc.row + loc.col].clear();
+    }
 
-    //clear out moves_by_end for anything starting on a need_to_calc square
+    //remove from moves_by_dest all moves of anything starting on a square in unblocked (i.e. anything that needs recalcuating because one of its paths was unblocked)
+    for(Pos loc : unblocked){
+        for(Move start_move : moves_by_start[8*loc.row + loc.col]){
+            std::vector<Move>* remove_from_vec = &(next_board->moves_by_dest[8*start_move.end_row + start_move.end_col]);
+            remove(remove_from_vec->begin(), remove_from_vec->end(), start_move);
+        }
+    }
+    
+    //clear out moves_by_start for any piece which is now blocked
+    std::vector<Move> blocked = moves_by_dest[8*move.end_row + move.end_col];
+    for(Move blocked_move : blocked){
+        next_board->moves_by_start[8*blocked_move.start_row + blocked_move.start_col].clear();
+    }
 
-    //
+    //remove from moves_by_dest all moves of anything starting on a square now blocked (i.e. anything that needs recalcuating because its move was blocked)
+    for(Move blocked_move : blocked){
+        for(Move start_move : moves_by_start[8*blocked_move.start_row + blocked_move.start_col]){
+            std::vector<Move>* remove_from_vec = &(next_board->moves_by_dest[8*start_move.end_row + start_move.end_col]);
+            remove(remove_from_vec->begin(), remove_from_vec->end(), start_move);
+        }
+    }
+
+    //regenerate legal moves for the piece that was moved
+    std::vector<Move> new_moves = next_board->get_moves_at(move.end_row, move.end_col);
+
+    //add new legal moves to the moves_by_start for the next board
+    std::vector<Move>* new_moves_by_start = &(next_board->moves_by_start[move.end_row, move.end_col]);
+    new_moves_by_start->insert(new_moves_by_start->end(), new_moves.begin(), new_moves.end());
+
+    //add new legal moves to the moves_by_end for their respecitve destinations for the next board
+    for (Move new_move : new_moves){
+        std::vector<Move>* new_moves_by_dest = &(next_board->moves_by_dest[new_move.end_row, new_move.end_col]);
+        new_moves_by_dest->push_back(new_move);
+    }
+
+    //regenerate legal moves for unblocked pieces
+    for(Pos loc : unblocked){
+        new_moves = next_board->get_moves_at(loc.row, loc.col);
+        new_moves_by_start = &(next_board->moves_by_start[loc.row, loc.col]);
+
+        new_moves_by_start->insert(new_moves_by_start->end(), new_moves.begin(), new_moves.end());
+
+        //add new legal moves to the moves_by_end of their respecitve destinations for each of every unblocked pieces' moves
+        for (Move new_move : new_moves){
+            std::vector<Move>* new_moves_by_dest = &(next_board->moves_by_dest[new_move.end_row, new_move.end_col]);
+            new_moves_by_dest->push_back(new_move);
+        }
+
+    }
+
+    //regenerate legal moves for now blocked pieces
+    for(Move blocked_move : blocked){
+        new_moves = next_board->get_moves_at(blocked_move.start_row, blocked_move.start_col);
+        new_moves_by_start = &(next_board->moves_by_start[blocked_move.start_row, blocked_move.start_col]);
+
+        new_moves_by_start->insert(new_moves_by_start->end(), new_moves.begin(), new_moves.end());
+
+        //add the legal moves to the moves_by_end of their respecitve destinations for each of every blocked pieces' moves
+        for (Move new_move : new_moves){
+            std::vector<Move>* new_moves_by_dest = &(next_board->moves_by_dest[new_move.end_row, new_move.end_col]);
+            new_moves_by_dest->push_back(new_move);
+        }
+    }
+
+    //remove the defunct blocking from the new board
+    //the get_moves_at function, or more specifically the functions it calls, should have already added the new blockers
+    next_board->blocking[8*move.start_row + move.start_col].clear();
+
+    if(next_board->get_precalculated_legal_moves().size() == 0){
+        next_board->victory = colors::STALE;
+    }
+    
+    //if the move is an enemy king capture, set victory to the team now playing (i.e. the other team)
+    if(end_square->piece == pieces::KING){
+        next_victory = this->turn;
+    }
 
     //return the updated board
     return next_board;
@@ -308,9 +385,25 @@ std::vector<Move> Board::get_legal_moves(){
     return legal_moves;
 }
 
+std::vector<Move> Board::get_precalculated_legal_moves(){
+    //create output vector
+    std::vector<Move> legal_moves = std::vector<Move>();
+
+    //iterate over all pieces
+    for(int row = 0; row < 8; row++){
+        for (int col = 0; col < 8; col++){
+            //only get the moves for the pieces whose turn it is
+            if (this->squares[8*row + col].color != this -> turn){
+                continue;
+            }
+            std::vector<Move> this_legal_moves = moves_by_start[8*row + col];
+            legal_moves.insert( legal_moves.end(), this_legal_moves.begin(), this_legal_moves.end() );
+        }
+    }
+    return legal_moves;
+}
+
 void Board::recalc_legal_moves(){
-
-
     //iterate over all pieces
     for(int row = 0; row < 8; row++){
         for (int col = 0; col < 8; col++){
@@ -320,12 +413,15 @@ void Board::recalc_legal_moves(){
 
             colors this_piece_color;
             this_piece_color = this->squares[8*row + col].color;
+
             //get the moves this piece can make
             std::vector<Move> moves_this_piece;
             moves_this_piece = get_moves_from_position(row, col, this_piece_type, this_piece_color);
-            //this pieces moves are the moves_by_start of this piece's location
+
+            //the moves_by_start of this piece's location are this pieces moves
             moves_by_start[8*row + col] = moves_this_piece;
-            //for each move here, add it to the moves_by_dest for that move's dest
+
+            //for each move here, add it to the moves_by_dest for that move's destination
             for(Move move : moves_this_piece){
                 int dest_row = move.end_row;
                 int dest_col = move.end_col;
@@ -336,7 +432,7 @@ void Board::recalc_legal_moves(){
 
 }
 
-Square* Board::board_copy(){
+Square* Board::squares_copy(){
     //create new squares for the copy
     Square* copy = new Square [64] ;
     for(int index = 0; index < 64; index++){
@@ -346,30 +442,84 @@ Square* Board::board_copy(){
     return copy;
 }
 
+int Board::white_threat_at(int row, int col){
+    int count = 0;
+    for(Move move : moves_by_dest[8*row + col]){
+        if(squares[8*move.start_row + move.start_col].color == colors::WHITE){
+            count ++;
+        }
+    }
+    return count;
+}
+
+int Board::black_threat_at(int row, int col){
+    int count = 0;
+    for(Move move : moves_by_dest[8*row + col]){
+        if(squares[8*move.start_row + move.start_col].color == colors::BLACK){
+            count ++;
+        }
+    }
+    return count;
+}
+
+
+void Board::set_threat_data(std::vector<Move> moves_by_start [64], std::vector<Move> moves_by_dest [64], std::vector<Pos> blocking [64]){
+    for(int vec_index = 0; vec_index < 64; vec_index++){
+        this->moves_by_start[vec_index] = moves_by_start[vec_index];
+        this->moves_by_dest[vec_index] = moves_by_dest[vec_index];
+        this->blocking[vec_index] = blocking[vec_index];
+    }
+}
+
 //when I first started writing this, I did not think that pawns would suck the most to write.
 //considering the double-move, diagional for taking and forward for movement, en passant and promotion rules though it makes sense
 std::vector<Move> Board::get_pawn_moves_from_pos(int row, int col, colors turn){
     std::vector<Move> out = std::vector<Move>();
     int dest_col = col;
     int dest_row;
+    Pos loc {.row = row, .col = col};
     if(turn == colors::WHITE){
         dest_row = row+1;
         //if the pawn has not moved from the start, add a double move possiblity if unobstructed
         if(row == 1){
-            if(!any_piece_here(dest_row + 1, dest_col) && !any_piece_here(dest_row, dest_col)){
-                Move move = {.start_row = row, .start_col = col, .end_row = dest_row+1, .end_col = dest_col};
-                out.push_back(move);
+            //first move is allowed
+            if(!any_piece_here(dest_row, dest_col)){
+                //second move is allowed
+                if(!any_piece_here(dest_row + 1, dest_col)){
+                    Move move = {.start_row = row, .start_col = col, .end_row = dest_row+1, .end_col = dest_col};
+                    out.push_back(move);
+                }
+                //double move is blocked
+                else{
+                    blocking[8*(dest_row + 1) + dest_col].push_back(loc);
+                }
+            }
+            //single move is blocked
+            else{
+                blocking[8*dest_row + dest_col].push_back(loc);
             }
         }
     }
-    //like white, but y-1 for the basic move and also for the double move
+    //like white, but row-1 for the basic move and also for the double move
     if(turn == colors::BLACK){
         dest_row = row - 1;
         //if the pawn has not moved from the start, add a double move possiblity if unobstructed
         if(row == 6){
-            if(!any_piece_here(dest_row - 1, dest_col) && !any_piece_here(dest_row, dest_col)){
-                Move move = {.start_row = row, .start_col = col, .end_row = dest_row-1, .end_col = dest_col};
-                out.push_back(move);
+            //first move is allowed
+            if(!any_piece_here(dest_row, dest_col)){
+                //second move is allowed
+                if(!any_piece_here(dest_row - 1, dest_col)){
+                    Move move = {.start_row = row, .start_col = col, .end_row = dest_row+1, .end_col = dest_col};
+                    out.push_back(move);
+                }
+                //double move is blocked
+                else{
+                    blocking[8*(dest_row - 1) + dest_col].push_back(loc);
+                }
+            }
+            //single move is blocked
+            else{
+                blocking[8*dest_row + dest_col].push_back(loc);
             }
         }
     }
@@ -405,19 +555,23 @@ std::vector<Move> Board::get_pawn_moves_from_pos(int row, int col, colors turn){
 
 std::vector<Move> Board::get_rook_moves_from_pos(int row, int col, colors turn){
     std::vector<Move> out = std::vector<Move>();
+    Pos loc {.row = row, .col = col};
     //vertical moves
     for(int delta_row = -1; delta_row <= 1; delta_row+=2){
         Move move;
         int dest_row = row + delta_row;
         int dest_col = col;
         while(dest_row >= 0 && dest_row <= 7){
+            //a piece in the way: add it to the blocking pieces
             if(any_piece_here(dest_row,dest_col)){
+                blocking[8*dest_row + dest_col].push_back(loc);
                 break;
             }
             move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
             out.push_back(move);
             dest_row += delta_row;
         }
+        //piece was blocked or we reach edge of board; if it was not edge of board and it was an enemy, add the move to take
         if (dest_row >= 0 && dest_row <= 7){
             if(enemy_piece_here(dest_row,dest_col,turn)){
                 move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
@@ -431,13 +585,16 @@ std::vector<Move> Board::get_rook_moves_from_pos(int row, int col, colors turn){
         int dest_row = row;
         int dest_col = col + delta_col;
         while(dest_col >= 0 && dest_col <= 7){
+            //a piece in the way: add it to the blocking pieces
             if(any_piece_here(dest_row,dest_col)){
+                blocking[8*dest_row + dest_col].push_back(loc);
                 break;
             }
             move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
             out.push_back(move);
             dest_col += delta_col;
         }
+        //piece was blocked or we reach edge of board; if it was not edge of board and it was an enemy, add the move to take
         if (dest_col >= 0 && dest_col <= 7){
             if(enemy_piece_here(dest_row,dest_col,turn)){
                 move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
@@ -450,6 +607,7 @@ std::vector<Move> Board::get_rook_moves_from_pos(int row, int col, colors turn){
 
 std::vector<Move> Board::get_bishop_moves_from_pos(int row, int col, colors turn){
     std::vector<Move> out = std::vector<Move>();
+    Pos loc {.row = row, .col = col};
     //diagonals are thankfully straight lines but sideways
     for(int delta_row = -1; delta_row <= 1; delta_row+=2){
         for(int delta_col = -1; delta_col <= 1; delta_col+=2){
@@ -457,7 +615,9 @@ std::vector<Move> Board::get_bishop_moves_from_pos(int row, int col, colors turn
             int dest_row = row + delta_row;
             int dest_col = col + delta_col;
             while(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
+                //add any piece in the way to blocking pieces
                 if(any_piece_here(dest_row,dest_col)){
+                    blocking[8*dest_row + dest_col].push_back(loc);
                     break;
                 }
                 move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
@@ -465,6 +625,7 @@ std::vector<Move> Board::get_bishop_moves_from_pos(int row, int col, colors turn
                 dest_row += delta_row;
                 dest_col += delta_col;
             }
+            //piece was blocked or we reach edge of board; if it was not edge of board and it was an enemy, add the move to take
             if(dest_row >= 0 && dest_row <= 7 && dest_col >= 0 && dest_col <= 7){
                 if(enemy_piece_here(dest_row,dest_col,turn)){
                     move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
@@ -478,6 +639,7 @@ std::vector<Move> Board::get_bishop_moves_from_pos(int row, int col, colors turn
 
 std::vector<Move> Board::get_knight_moves_from_pos(int row, int col, colors turn){
     std::vector<Move> out = std::vector<Move>();
+    Pos loc {.row = row, .col = col};
     //just a silly little algorithm to look at all 8 possible horsey moves
     for(int dest_row = row - 2; dest_row <= row + 2; dest_row += 1){
         //boundary check x
@@ -497,6 +659,10 @@ std::vector<Move> Board::get_knight_moves_from_pos(int row, int col, colors turn
                 Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
                 out.push_back(move);
             }
+            //knight is only blocked by allies, naturally
+            else{
+                blocking[8*dest_row + dest_col].push_back(loc);
+            }
 
         }
     }
@@ -505,6 +671,7 @@ std::vector<Move> Board::get_knight_moves_from_pos(int row, int col, colors turn
 
 std::vector<Move> Board::get_king_moves_from_pos(int row, int col, colors turn){
     std::vector<Move> out = std::vector<Move>();
+    Pos loc {.row = row, .col = col};
     //regular 3x3 movement block of king
     for(int dest_row = row - 1; dest_row <= row + 1; dest_row ++){
         //boundary check row
@@ -516,11 +683,23 @@ std::vector<Move> Board::get_king_moves_from_pos(int row, int col, colors turn){
             if(dest_col < 0 || dest_col > 7){
                 continue;
             }
-            //king can go to any square without an ally there 
-            //(no check consideration; that is more expensive than seeing victory by king capture; TODO?)
+            //king can try to go to any square without an ally there 
             if(!ally_piece_here(dest_row, dest_col, turn)){
+                bool is_able = true;
+                //see each piece that threatens the square
+                for(Move move: moves_by_dest[8*dest_row + dest_col]){
+                    //if the threat is not from an ally, that piece is blocking the king's movement there
+                    if(squares[8*move.start_row+move.start_col].color != turn){
+                        is_able = false;
+                        blocking[8*move.start_row + move.start_col].push_back(loc);
+                    }
+                }
                 Move move = {.start_row = row, .start_col = col, .end_row = dest_row, .end_col = dest_col};
                 out.push_back(move);
+            }
+            //since the king only moves 1 square at a time, it is only blocked by allies' presence
+            else{
+                blocking[8*dest_row + dest_col].push_back(loc);
             }
         }
     }
@@ -533,14 +712,78 @@ std::vector<Move> Board::get_king_moves_from_pos(int row, int col, colors turn){
     can_castle_QS = (((turn == colors::WHITE) * 0b1000 + (turn == colors::BLACK) * 0b0010) & castle_status) != 0;
 
     if(can_castle_KS){
-        if(!any_piece_here(row, 5) && !any_piece_here(row, 6)){
+        bool is_able = true;
+        if(any_piece_here(row, 5)){
+            is_able = false;
+            blocking[8*row + 5].push_back(loc);
+        }
+        if(any_piece_here(row, 6)){
+            is_able = false;
+            blocking[8*row + 6].push_back(loc);
+        }
+        //check every move that threatens a square the king passes through
+        for(Move move: moves_by_dest[8*row + 4]){
+            //if the threat is not from an ally, that piece is blocking the castle
+            if(squares[8*move.start_row+move.start_col].color != turn){
+                is_able = false;
+                blocking[8*move.start_row + move.start_col].push_back(loc);
+            }
+        }
+        for(Move move: moves_by_dest[8*row + 5]){
+            if(squares[8*move.start_row+move.start_col].color != turn){
+                is_able = false;
+                blocking[8*move.start_row + move.start_col].push_back(loc);
+            }
+        }
+        for(Move move: moves_by_dest[8*row + 6]){
+            if(squares[8*move.start_row+move.start_col].color != turn){
+                is_able = false;
+                blocking[8*move.start_row + move.start_col].push_back(loc);
+            }
+        }
+        if(is_able){
             Move move = {.start_row = row, .start_col = col, .end_row = row, .end_col = 6};
             out.push_back(move);
         }
     }
 
     if(can_castle_QS){
-        if(!any_piece_here(row, 1) && !any_piece_here(row, 2) && !any_piece_here(row, 3)){
+        bool is_able = true;
+        //check each square between the knight and king
+        if(any_piece_here(row, 1)){
+            //if that square contains a piece, the castle is blocked, by that piece
+            is_able = false;
+            blocking[8*row + 1].push_back(loc);
+        }
+        if(any_piece_here(row, 2)){
+            is_able = false;
+            blocking[8*row + 2].push_back(loc);
+        }
+        if(any_piece_here(row, 3)){
+            is_able = false;
+            blocking[8*row + 3].push_back(loc);
+        }
+        //check every move that threatens a square the king passes through
+        for(Move move: moves_by_dest[8*row + 2]){
+            //if the threat is not from an ally, that piece is blocking the castle
+            if(squares[8*move.start_row+move.start_col].color != turn){
+                is_able = false;
+                blocking[8*move.start_row + move.start_col].push_back(loc);
+            }
+        }
+        for(Move move: moves_by_dest[8*row + 3]){
+            if(squares[8*move.start_row+move.start_col].color != turn){
+                is_able = false;
+                blocking[8*move.start_row + move.start_col].push_back(loc);
+            }
+        }
+        for(Move move: moves_by_dest[8*row + 4]){
+            if(squares[8*move.start_row+move.start_col].color != turn){
+                is_able = false;
+                blocking[8*move.start_row + move.start_col].push_back(loc);
+            }
+        }
+        if(is_able){
             Move move = {.start_row = row, .start_col = col, .end_row = row, .end_col = 2};
             out.push_back(move);
         }
@@ -556,6 +799,11 @@ std::vector<Move> Board::get_queen_moves_from_pos(int row, int col, colors turn)
     out = bishopMoves;
     out.insert(out.end(), rookMoves.begin(), rookMoves.end());
     return out;
+}
+
+
+std::vector<Move> Board::get_moves_at(int row, int col){
+    return get_moves_from_position(row, col, at(row,col).piece, at(row,col).color);
 }
 
 std::vector<Move> Board::get_moves_from_position(int row, int col, pieces piece_type, colors turn){

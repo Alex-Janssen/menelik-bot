@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-enum class colors {BLACK, WHITE, NONE}; //Defines colors which are linked to a square
+enum class colors {BLACK, WHITE, NONE, STALE}; //Defines colors which are linked to a square
 enum class pieces {KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN, NONE}; //Defines piece on square.
 
 struct Square {
@@ -53,9 +53,24 @@ class Board {
         int white_threat_at(int row, int col);
         int black_threat_at(int row, int col);
 
+        /// @brief list of all currently possible moves by start
+        std::vector<Move> moves_by_start [64];
+
+        /// @brief list of all currently possible moves by destination
+        std::vector<Move> moves_by_dest [64];
+
+        //TODO: this system does not account for pawn diagonal moves' availability.
+        /// @brief starting squares which need moves recalculating if a piece moves off of the index square
+        std::vector<Pos> blocking [64];
+
+        void set_threat_data(std::vector<Move> moves_by_start [64], std::vector<Move> moves_by_dest [64], std::vector<Pos> blocking [64]);
+
+        std::vector<Move> get_precalculated_legal_moves();
+
     private:
 
         Square* squares;
+        std::vector<Move> get_moves_at(int row, int col);
         std::vector<Move> get_moves_from_position(int pos_x, int pos_y, pieces piece_type, colors turn);
         std::vector<Move> get_pawn_moves_from_pos(int pos_x, int pos_y, colors turn);
         std::vector<Move> get_knight_moves_from_pos(int pos_x, int pos_y, colors turn);
@@ -63,24 +78,12 @@ class Board {
         std::vector<Move> get_queen_moves_from_pos(int pos_x, int pos_y, colors turn);
         std::vector<Move> get_bishop_moves_from_pos(int pos_x, int pos_y, colors turn);
         std::vector<Move> get_rook_moves_from_pos(int pos_x, int pos_y, colors turn);
-        Square* board_copy();
+        Square* squares_copy();
         void recalc_legal_moves();
         void load_board_pieces(std::string& fen_string);
         bool any_piece_here(int pos_x, int pos_y);
         bool ally_piece_here(int pos_x, int pos_y, colors team);
         bool enemy_piece_here(int pos_x, int pos_y, colors team);
-
-        /// @brief list of all currently possible moves by start
-        std::vector<Move> moves_by_start [64];
-        /// @brief list of all currently possible moves by destination
-        std::vector<Move> moves_by_dest [64];
-
-
-        /// @brief starting squares which need moves recalculating iff an ally is present on a square
-        std::vector<Pos> blocking [64] ;
-
-        /// @brief ending squares which need moves recalculating iff an ally is present on a square
-        std::vector<Pos> end_threat_removed_ally [64] ;
 
 };
 
