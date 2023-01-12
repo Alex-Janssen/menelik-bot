@@ -509,7 +509,7 @@ std::vector<Move> Board::get_pawn_moves_from_pos(int row, int col, colors turn){
             if(!any_piece_here(dest_row, dest_col)){
                 //second move is allowed
                 if(!any_piece_here(dest_row - 1, dest_col)){
-                    Move move = {.start_row = row, .start_col = col, .end_row = dest_row+1, .end_col = dest_col};
+                    Move move = {.start_row = row, .start_col = col, .end_row = dest_row-1, .end_col = dest_col};
                     out.push_back(move);
                 }
                 //double move is blocked
