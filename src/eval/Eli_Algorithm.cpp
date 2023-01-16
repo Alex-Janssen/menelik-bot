@@ -78,7 +78,7 @@ Board* Eli_Algorithm::get_best_board(Board* board){
                 best_board = *it;
                 best_eval = eval;
                 it++;
-                if(board->victory==colors::WHITE){break;}
+                if(best_eval == 999999){break;}
             }
             else{
                 it = moves.erase(it);
@@ -93,7 +93,7 @@ Board* Eli_Algorithm::get_best_board(Board* board){
                 best_board = *it;
                 best_eval = eval;
                 it++;
-                if(board->victory==colors::BLACK){break;}
+                if(best_eval == -999999){break;}
             }
             else{
                 it = moves.erase(it);
@@ -125,7 +125,7 @@ Move Eli_Algorithm::get_best_move(Board* board){
                 best_move = *it;
                 best_eval = eval;
                 it++;
-                if(board->victory==colors::WHITE){break;}
+                if(best_eval == 999999){break;}
             }
             else{
                 it = moves.erase(it);
@@ -140,7 +140,7 @@ Move Eli_Algorithm::get_best_move(Board* board){
                 best_move = *it;
                 best_eval = eval;
                 it++;
-                if(board->victory==colors::BLACK){break;}
+                if(best_eval == -999999){break;}
             }
             else{
                 it = moves.erase(it);
