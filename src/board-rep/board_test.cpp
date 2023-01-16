@@ -32,14 +32,13 @@ int main() {
 	cout << endl;
 
 	cout << "Result board: " << endl;
-	cout << test_board->to_string();
+	cout << test_next_board->to_string();
 
 	cout << endl << endl;
 	cout << "Test getting legal moves: " << endl << endl;
 	fen_string = "2b1kb2/p2pp1pp/1r1q1r2/p1n4n/PpPQ2p1/1N2P3/P2PKPPP/R1B2BNR w - - 0 1";
 	test_board = new Board();
 	test_board->load_board(fen_string);
-	test_board->turn = colors::WHITE;
 	cout << "Board: " << endl;
 	cout << test_board->to_string();
 	std::vector<Move> legal_moves = test_board->get_legal_moves();
@@ -52,14 +51,10 @@ int main() {
 		cout << endl;
 	}
 
-	
 	cout << endl << endl;
 	cout << "Test making a legal move: " << endl << endl;
 	move = legal_moves[0];
 	Board* next_board = test_board->next_from_move(move);
-
-    std::cout << "piece at location is: " << std::endl;
-    std::cout << piece_enum_to_name(next_board->at(move.start_row, move.start_col).piece) << std::endl;
 
 	cout << "Original board: " << endl;
 	cout << test_board->to_string();
@@ -72,6 +67,17 @@ int main() {
 
 	cout << "Result board: " << endl;
 	cout << next_board->to_string();
+
+	std::vector<Move> next_legal_moves = next_board->get_legal_moves();
+	cout << endl;
+	cout << "Got legal moves" << endl;
+	for(Move move : next_legal_moves){
+		cout << piece_enum_to_name(next_board->at(move.start_row, move.start_col).piece) <<  " at ";
+		cout << '(' << (char) ('a'+ move.start_col) << move.start_row+1 << ')';
+		cout << " to ";
+		cout << '(' << (char) ('a'+ move.end_col) << move.end_row+1 << ')';
+		cout << endl;
+	}
 
 	return 0;
 }

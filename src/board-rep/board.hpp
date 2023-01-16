@@ -23,6 +23,15 @@ struct Move {
     int_fast8_t end_col;
     int_fast8_t castle_change = 0b1111;
     pieces promote_target = pieces::NONE;
+
+    bool operator == (const Move &other)
+    {
+    if(start_row == other.start_row && start_col == other.start_col && end_row == other.end_row && end_col == other.end_col && castle_change == other.castle_change && promote_target == other.promote_target){
+        return true;
+    }
+    else
+        return false;
+    }
 };
 
 struct Pos {

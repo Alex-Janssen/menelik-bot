@@ -3,10 +3,11 @@
 //
 
 #include "Board.hpp"
-#include <vector>
+#include <iostream>
 #include <ctype.h>
 #include <string.h>
-#include <iostream>
+#include <vector>
+#include <algorithm>
 
 Board::Board(){
     //initalize empty board
@@ -225,15 +226,17 @@ Board* Board::next_from_move(Move move){
         }
     }
     
-    //rook move check for castling rights update
-    if(move.castle_change < 0b10000 && start_piece == pieces::ROOK ){
+    //rook moveing or taken check for castling rights update
+    if(castle_status != 0){
         //woooooo bitwise operand time
-        bool K = move.start_col==7;
-        bool W = move.start_row==0;
+        bool WQ = (move.start_col==7 && move.start_row == 7 ) || (move.end_col==7 && move.end_row==7);
+        bool WK = (move.start_col==0 && move.start_row == 7 ) || (move.end_col==0 && move.end_row==7);
+        bool BQ = (move.start_col==7 && move.start_row == 0 ) || (move.end_col==7 && move.end_row==0);
+        bool BK = (move.start_col==0 && move.start_row == 0 ) || (move.end_col==0 && move.end_row==0);
 
         //castle status: White Queenside | White Kingside | Black Queenside | Black Kingside
 
-        int_fast8_t result = 0b1000 * (!K && W) + 0b0100 * (K && W) + 0b0010 * (!K && !W) + 0b0001 * (K && !W);
+        int_fast8_t result = 0b1000 * (WQ) + 0b0100 * (WK) + 0b0010 * (BQ) + 0b0001 * (BK);
         next_castle_status &= result;
     }
     
@@ -365,21 +368,27 @@ std::vector<Move> Board::get_legal_moves(){
     //create output vector
     std::vector<Move> legal_moves = std::vector<Move>();
 
+    for(Move move: get_precalculated_legal_moves()){
+        if(at(move.start_row, move.start_col).color == turn){
+            legal_moves.push_back(move);
+        }
+    }
+
     //iterate over all pieces
     for(int row = 0; row < 8; row++){
         for (int col = 0; col < 8; col++){
-            //only get the moves for the pieces whose turn it is
-            if (this->squares[8*row + col].color != this -> turn){
+            //only get the moves for pawns since we need to find diagonals
+            if (at(row,col).color !=  turn || at(row,col).piece != pieces::PAWN){
                 continue;
             }
-            //get the type of the piece being observed
-            pieces this_piece_type;
-            this_piece_type = this->squares[8*row + col].piece;
-            //get the moves this piece can make
-            std::vector<Move> moves_this_piece;
-            moves_this_piece = get_moves_from_position(row, col, this_piece_type, this->turn);
-            //add this pieces possible moves to all possible moves
-            legal_moves.insert(legal_moves.end(), moves_this_piece.begin(), moves_this_piece.end());
+            //get pawn moves
+            std::vector<Move> moves_this_piece = get_moves_from_position(row, col, pieces::PAWN, turn);
+            //add the moves if they are diagonal
+            for(Move move: moves_this_piece){
+                if(move.start_col != move.end_col){
+                    legal_moves.push_back(move);
+                }
+            }
         }
     }
     return legal_moves;
@@ -449,6 +458,20 @@ int Board::white_threat_at(int row, int col){
             count ++;
         }
     }
+    if(row >= 1){
+        if(col >= 1){
+            if(at(row-1, col-1).piece == pieces::PAWN && at(row-1, col-1).color == colors::WHITE){
+                count++;
+            }
+        }
+        
+        if(col <= 6){
+            if(at(row-1, col+1).piece == pieces::PAWN && at(row-1, col+1).color == colors::WHITE){
+                count++;
+            }   
+        }
+    }
+
     return count;
 }
 
@@ -457,6 +480,19 @@ int Board::black_threat_at(int row, int col){
     for(Move move : moves_by_dest[8*row + col]){
         if(squares[8*move.start_row + move.start_col].color == colors::BLACK){
             count ++;
+        }
+    }
+    if(row <= 6){
+        if(col >= 1){
+            if(at(row+1, col-1).piece == pieces::PAWN && at(row+1, col-1).color == colors::WHITE){
+                count++;
+            }
+        }
+        
+        if(col <= 6){
+            if(at(row+1, col+1).piece == pieces::PAWN && at(row+1, col+1).color == colors::WHITE){
+                count++;
+            }   
         }
     }
     return count;
@@ -708,8 +744,14 @@ std::vector<Move> Board::get_king_moves_from_pos(int row, int col, colors turn){
     bool can_castle_KS;
     bool can_castle_QS;
 
-    can_castle_KS = (((turn == colors::WHITE) * 0b0100 + (turn == colors::BLACK) * 0b0001) & castle_status) != 0;
-    can_castle_QS = (((turn == colors::WHITE) * 0b1000 + (turn == colors::BLACK) * 0b0010) & castle_status) != 0;
+    if(turn == colors::WHITE){
+        can_castle_KS = (0b0100 & castle_status) != 0;
+        can_castle_QS = (0b1000 & castle_status) != 0;
+    }
+    if(turn == colors::BLACK){
+        can_castle_KS = (0b0001 & castle_status) != 0;
+        can_castle_QS = (0b0010 & castle_status) != 0;
+    }
 
     if(can_castle_KS){
         bool is_able = true;
