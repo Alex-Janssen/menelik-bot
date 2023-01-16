@@ -217,5 +217,14 @@ Move move_from_text(std::string& move_text){
 
 }
 
+std::string move_to_text(Move move){
+    std::string out = "";
+    out += (char)('a'+move.start_col);
+    out += (char)('1'+move.start_row);
+    out += (char)('a'+move.end_col);
+    out += (char)('1'+move.end_row);
+    return out;
+}
+
 
 #endif //MENELIK_BOARD_H

@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
             current_board = current_board->next_from_move(to_move);
 
             std::cout << "Next board state is:\n" << current_board->to_string() << std::endl;
+            std::cout << "Legal moves count: " << current_board->get_legal_moves().size() << std::endl;
 
             Move best_move = algo->get_best_move(current_board);
 
@@ -55,7 +56,8 @@ int main(int argc, char *argv[]) {
             current_board = current_board->next_from_move(best_move);
             
             std::cout << "Next board state is:\n" << current_board->to_string() << std::endl;
+            std::cout << "Legal moves count: " << current_board->get_legal_moves().size() << std::endl;
         }
-
+        std::cout << "Victory detected: " << '0'+(int)(current_board->victory) << std::endl;
     }
 }
