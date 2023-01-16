@@ -1,17 +1,14 @@
-<<<<<<< HEAD
 Passed test Mate in one 1
-Test Mate in one 1: 5 seconds 
+Test Mate in one 1: 68 seconds 
 Failed test Mate in one 2
-Test Mate in one 2: 5 seconds 
+Test Mate in one 2: 80 seconds 
 Passed test King-rook knight fork 1
-Test King-rook knight fork 1: 3 seconds 
+Test King-rook knight fork 1: 37 seconds 
 Passed test King-rook knight fork 2
-Test King-rook knight fork 2: 0 seconds 
+Test King-rook knight fork 2: 11 seconds 
 Passed test Mate in Two 1
-Test Mate in Two 1: 3 seconds 
-Failed test Mate in Three 1
-Test Mate in Three 1: 1 seconds 
-=======
->>>>>>> f82b8d9ca143b2ced41e865b7d2aef3e4199062e
+Test Mate in Two 1: 39 seconds 
+Passed test Mate in Three 1
+Test Mate in Three 1: 15 seconds 
 Failed test Mate in Three 2 (promotion)
-Test Mate in Three 2 (promotion): 0 seconds 
+Test Mate in Three 2 (promotion): 1 seconds 

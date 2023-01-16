@@ -32,7 +32,7 @@ std::vector<Board*> Eli_Algorithm::spawn_children(Board* board){ //generates a l
 }
 float Eli_Algorithm::minimax(Board* board, int depth, float alpha, float beta, bool maximizing_player){ //returns mininmal loss value
     float eval;
-    if(depth == 0 || abs(Eval_Functions::evaluate_board_naive(board, piece_vals)) > 100){
+    if(depth == 0 || board->victory!=colors::NONE){
         return Eval_Functions::evaluate_board_naive(board, piece_vals)+depth*0.1;
     }
 
@@ -78,7 +78,7 @@ Board* Eli_Algorithm::get_best_board(Board* board){
                 best_board = *it;
                 best_eval = eval;
                 it++;
-                if(eval > 103){break;}
+                if(best_eval == 999999){break;}
             }
             else{
                 it = moves.erase(it);
@@ -93,7 +93,7 @@ Board* Eli_Algorithm::get_best_board(Board* board){
                 best_board = *it;
                 best_eval = eval;
                 it++;
-                if(eval < -103){break;}
+                if(best_eval == -999999){break;}
             }
             else{
                 it = moves.erase(it);
@@ -125,7 +125,7 @@ Move Eli_Algorithm::get_best_move(Board* board){
                 best_move = *it;
                 best_eval = eval;
                 it++;
-                if(eval > 103){break;}
+                if(best_eval == 999999){break;}
             }
             else{
                 it = moves.erase(it);
@@ -140,7 +140,7 @@ Move Eli_Algorithm::get_best_move(Board* board){
                 best_move = *it;
                 best_eval = eval;
                 it++;
-                if(eval < -103){break;}
+                if(best_eval == -999999){break;}
             }
             else{
                 it = moves.erase(it);
