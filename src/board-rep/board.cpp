@@ -323,7 +323,6 @@ Board* Board::next_from_move(Move move){
 
     //regenerate legal moves for unblocked pieces
     for(Pos loc : unblocked){
-        std::cout << "got unblocked at " << (char)('a'+loc.col) << (char)('1'+loc.row) << std::endl;
         new_moves = next_board->get_moves_at(loc.row, loc.col);
         new_moves_by_start = &(next_board->moves_by_start[loc.row, loc.col]);
 
