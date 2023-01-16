@@ -15,6 +15,10 @@
 
 float Eval_Functions::evaluate_board_naive(Board* to_evaluate, std::map<char, int> piece_vals){
     float eval_result = 0;
+    if(to_evaluate->victory!=colors::NONE)
+    {
+        return (to_evaluate->victory==colors::WHITE)*(999999)-(to_evaluate->victory==colors::BLACK)*(999999);
+    }
     for(int row = 0; row < 8; row++){//Iterate over every square
         for(int col = 0; col < 8; col++){
             Square check = to_evaluate->at(col, row);
