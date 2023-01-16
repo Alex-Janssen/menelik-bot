@@ -273,8 +273,10 @@ Board* Board::next_from_move(Move move){
 
     //remove from moves_by_dest all the moves which start on the start square (ending locations found by looking at moves from the start square)
     for(Move start_move : moves_by_start[8*move.start_row + move.start_col]){
+
         std::vector<Move>* remove_from_vec = &(next_board->moves_by_dest[8*start_move.end_row + start_move.end_col]);
-        remove(remove_from_vec->begin(), remove_from_vec->end(), start_move);
+
+        remove_from_vec->erase(remove(remove_from_vec->begin(),  remove_from_vec->end(), start_move), remove_from_vec->end());
     }
 
     //clear out moves_by_start for any piece previously blocked
@@ -287,10 +289,11 @@ Board* Board::next_from_move(Move move){
     for(Pos loc : unblocked){
         for(Move start_move : moves_by_start[8*loc.row + loc.col]){
             std::vector<Move>* remove_from_vec = &(next_board->moves_by_dest[8*start_move.end_row + start_move.end_col]);
-            remove(remove_from_vec->begin(), remove_from_vec->end(), start_move);
+            remove_from_vec->erase(remove(remove_from_vec->begin(), remove_from_vec->end(), start_move), remove_from_vec->end());
         }
     }
     
+
     //clear out moves_by_start for any piece which is now blocked
     std::vector<Move> blocked = moves_by_dest[8*move.end_row + move.end_col];
     for(Move blocked_move : blocked){
@@ -301,10 +304,10 @@ Board* Board::next_from_move(Move move){
     for(Move blocked_move : blocked){
         for(Move start_move : moves_by_start[8*blocked_move.start_row + blocked_move.start_col]){
             std::vector<Move>* remove_from_vec = &(next_board->moves_by_dest[8*start_move.end_row + start_move.end_col]);
-            remove(remove_from_vec->begin(), remove_from_vec->end(), start_move);
+            remove_from_vec->erase(remove(remove_from_vec->begin(), remove_from_vec->end(), start_move), remove_from_vec->end());
         }
     }
-
+    
     //regenerate legal moves for the piece that was moved
     std::vector<Move> new_moves = next_board->get_moves_at(move.end_row, move.end_col);
 
@@ -320,6 +323,7 @@ Board* Board::next_from_move(Move move){
 
     //regenerate legal moves for unblocked pieces
     for(Pos loc : unblocked){
+        std::cout << "got unblocked at " << (char)('a'+loc.col) << (char)('1'+loc.row) << std::endl;
         new_moves = next_board->get_moves_at(loc.row, loc.col);
         new_moves_by_start = &(next_board->moves_by_start[loc.row, loc.col]);
 
